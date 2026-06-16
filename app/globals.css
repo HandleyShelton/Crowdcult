@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0a0a0a;
+  --surface: #141414;
+  --surface-2: #1f1f1f;
+  --accent: #e50914;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background);
+  color: white;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* Mux player full-width override */
+mux-player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+}

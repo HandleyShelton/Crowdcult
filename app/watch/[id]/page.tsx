@@ -5,11 +5,17 @@ import VideoPlayer from '@/components/VideoPlayer'
 import { formatRuntime } from '@/lib/utils'
 
 async function checkPlatformEnabled(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const [{ data: enabled }, { data: hardStop }] = await Promise.all([
-    supabase.from('platform_settings').select('value').eq('key', 'platform_enabled').single(),
-    supabase.from('platform_settings').select('value').eq('key', 'hard_stop_enabled').single(),
-  ])
-  return enabled?.value !== 'false' && hardStop?.value !== 'true'
+  const { data: settings } = await supabase
+    .from('platform_settings')
+    .select('key, value')
+    .in('key', ['platform_enabled', 'hard_stop_enabled'])
+
+  const map: Record<string, string> = {}
+  for (const row of settings ?? []) map[row.key] = row.value
+
+  const platformEnabled = map['platform_enabled'] !== 'false'
+  const hardStop = map['hard_stop_enabled'] === 'true'
+  return platformEnabled && !hardStop
 }
 
 export default async function WatchPage({ params }: { params: Promise<{ id: string }> }) {

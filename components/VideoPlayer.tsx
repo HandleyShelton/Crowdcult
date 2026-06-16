@@ -11,11 +11,12 @@ interface VideoPlayerProps {
 }
 
 export default function VideoPlayer({ playbackId, token, filmId, title }: VideoPlayerProps) {
-  const playerRef = useRef<HTMLElement & { currentTime?: number }>(null)
+  // Track time via onTimeUpdate into a plain ref — avoids MuxPlayerElement typing issues
+  const currentTimeRef = useRef(0)
   const lastReportedRef = useRef(0)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const reportWatchTime = useCallback(async (seconds: number) => {
+    if (seconds <= 0) return
     try {
       await fetch('/api/watch-event', {
         method: 'POST',
@@ -23,42 +24,38 @@ export default function VideoPlayer({ playbackId, token, filmId, title }: VideoP
         body: JSON.stringify({ filmId, watchedSeconds: Math.floor(seconds) }),
       })
     } catch {
-      // silently fail — watch tracking is best-effort
+      // best-effort tracking
     }
   }, [filmId])
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      const player = playerRef.current
-      const currentTime = player?.currentTime ?? 0
-      if (currentTime > lastReportedRef.current) {
-        const delta = currentTime - lastReportedRef.current
-        if (delta >= 1) {
-          reportWatchTime(currentTime)
-          lastReportedRef.current = currentTime
-        }
+    const interval = setInterval(() => {
+      const current = currentTimeRef.current
+      if (current > lastReportedRef.current) {
+        lastReportedRef.current = current
+        reportWatchTime(current)
       }
     }, 30_000)
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
+      clearInterval(interval)
       // Final report on unmount
-      const player = playerRef.current
-      if (player?.currentTime && player.currentTime > lastReportedRef.current) {
-        reportWatchTime(player.currentTime)
-      }
+      reportWatchTime(currentTimeRef.current)
     }
   }, [reportWatchTime])
 
   return (
     <div className="w-full rounded-lg overflow-hidden bg-black shadow-2xl">
       <MuxPlayer
-        ref={playerRef as React.RefObject<HTMLElement>}
         playbackId={playbackId}
         tokens={{ playback: token }}
         metadata={{ video_title: title }}
         accentColor="#e50914"
         style={{ width: '100%', aspectRatio: '16/9' }}
+        onTimeUpdate={(evt) => {
+          const target = evt.target as HTMLVideoElement
+          currentTimeRef.current = target.currentTime ?? 0
+        }}
       />
     </div>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import FilmCard from '@/components/FilmCard'
 
@@ -24,7 +24,7 @@ export default function BrowseClient() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
 
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
   useEffect(() => {
     async function loadFilms() {
@@ -43,7 +43,7 @@ export default function BrowseClient() {
       setLoading(false)
     }
     loadFilms()
-  }, [])
+  }, [supabase])
 
   useEffect(() => {
     let result = films

@@ -4,7 +4,7 @@ import { stripe } from '@/lib/stripe'
 import { isAdminEmail, currentMonth } from '@/lib/utils'
 import { mux } from '@/lib/mux'
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -20,8 +20,8 @@ export async function GET(req: NextRequest) {
   // Get asset count from Mux
   let assetCount = 0
   try {
-    const assets = await mux.video.assets.list({ limit: 1 })
-    // Mux doesn't expose total count directly in SDK — use watch_events as proxy
+    await mux.video.assets.list({ limit: 1 })
+    // Mux doesn't expose total count directly in SDK — use films table as proxy
     const { count } = await serviceClient
       .from('films')
       .select('*', { count: 'exact', head: true })

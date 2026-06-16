@@ -16,22 +16,33 @@ export default function Marquee({
   color = 'text-muted',
   separator = '✦',
 }: MarqueeProps) {
-  const line = items.join(`   ${separator}   `)
+  // One self-contained group: each item is followed by a separator, so two
+  // groups placed back-to-back tile seamlessly (…itemN ✦ item1 ✦…). Spacing
+  // comes from padding, not text whitespace (which HTML would collapse).
+  const Group = (
+    <div className="flex items-center flex-shrink-0">
+      {items.map((text, i) => (
+        <span key={i} className="flex items-center">
+          <span className={`px-6 text-xs font-mono uppercase tracking-[0.25em] whitespace-nowrap ${color}`}>
+            {text}
+          </span>
+          <span className={`text-xs ${color} opacity-40`}>{separator}</span>
+        </span>
+      ))}
+    </div>
+  )
 
   return (
-    <div className={`marquee-track overflow-hidden border-y border-line bg-surface/40 py-1.5 ${className}`}>
+    <div
+      className={`overflow-hidden border-y border-line bg-surface/40 py-1.5 ${className}`}
+      aria-hidden
+    >
       <div
         className={`marquee-inner ${reverse ? 'reverse' : ''}`}
         style={{ animationDuration: `${speed}s` }}
       >
-        <span className={`mx-6 text-xs font-mono uppercase tracking-[0.25em] select-none ${color}`}>
-          {line}
-          {`   ${separator}   `}
-        </span>
-        <span className={`mx-6 text-xs font-mono uppercase tracking-[0.25em] select-none ${color}`} aria-hidden>
-          {line}
-          {`   ${separator}   `}
-        </span>
+        {Group}
+        {Group}
       </div>
     </div>
   )

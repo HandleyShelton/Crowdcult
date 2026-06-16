@@ -98,6 +98,3 @@ mux-player {
 .marquee-inner.reverse {
   animation-direction: reverse;
 }
-.marquee-track:hover .marquee-inner {
-  animation-play-state: paused;
-}

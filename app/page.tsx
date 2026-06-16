@@ -29,7 +29,7 @@ export default async function LandingPage() {
       <section className="scanlines relative min-h-[88vh] flex flex-col items-center justify-center overflow-hidden bg-black">
         {/* Grid texture */}
         <div
-          className="absolute inset-0 opacity-[0.04]"
+          className="absolute inset-0 opacity-[0.04] pointer-events-none"
           style={{
             backgroundImage: 'linear-gradient(#e50914 1px, transparent 1px), linear-gradient(90deg, #e50914 1px, transparent 1px)',
             backgroundSize: '40px 40px',

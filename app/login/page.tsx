@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
@@ -10,7 +10,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get('next') ?? '/browse'
   const supabase = createClient()
@@ -32,10 +31,11 @@ export default function LoginPage() {
       .from('users')
       .select('is_subscribed')
       .eq('id', authedUser.id)
-      .single()
+      .maybeSingle()
 
-    router.push(profile?.is_subscribed ? next : '/subscribe')
-    router.refresh()
+    // Full-page navigation so middleware sees the fresh session cookie and the
+    // redirect always fires (router.push could leave the button stuck loading).
+    window.location.href = profile?.is_subscribed ? next : '/subscribe'
   }
 
   return (

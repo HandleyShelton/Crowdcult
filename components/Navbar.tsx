@@ -29,7 +29,7 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-1 text-sm font-mono">
+          <div className="hidden md:flex items-center gap-1 text-sm font-mono flex-shrink-0">
             {isSubscribed && (
               <NavLink href="/browse">[ BROWSE ]</NavLink>
             )}
@@ -43,7 +43,7 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
                 <NavLink href="/settings">[ ACCOUNT ]</NavLink>
                 <button
                   onClick={handleSignOut}
-                  className="text-gray-400 hover:text-white border border-white/20 hover:border-white/50 px-3 py-1 transition-colors text-xs tracking-widest uppercase"
+                  className="flex-shrink-0 whitespace-nowrap text-gray-400 hover:text-white border border-white/20 hover:border-white/50 px-3 py-1 transition-colors text-xs tracking-widest uppercase"
                 >
                   sign out
                 </button>
@@ -53,7 +53,7 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
                 <NavLink href="/login">[ login ]</NavLink>
                 <Link
                   href="/signup"
-                  className="bg-accent hover:bg-accent-hover text-white px-4 py-1.5 text-xs tracking-widest uppercase font-mono transition-colors"
+                  className="flex-shrink-0 whitespace-nowrap bg-accent hover:bg-accent-hover text-white px-4 py-1.5 text-xs tracking-widest uppercase font-mono transition-colors"
                 >
                   JOIN →
                 </Link>
@@ -112,7 +112,7 @@ function NavLink({ href, children, accent }: { href: string; children: React.Rea
   return (
     <Link
       href={href}
-      className={`px-3 py-1.5 tracking-widest text-xs uppercase transition-colors hover:text-accent ${
+      className={`flex-shrink-0 whitespace-nowrap px-3 py-1.5 tracking-widest text-xs uppercase transition-colors hover:text-accent ${
         accent ? 'text-accent' : 'text-gray-400 hover:text-white'
       }`}
     >

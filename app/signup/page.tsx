@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function SignupPage() {
@@ -10,7 +10,6 @@ export default function SignupPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get('next') ?? '/subscribe'
   const supabase = createClient()
@@ -32,8 +31,7 @@ export default function SignupPage() {
       return
     }
 
-    router.push(next)
-    router.refresh()
+    window.location.href = next
   }
 
   return (

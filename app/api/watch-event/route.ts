@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { currentMonth } from '@/lib/utils'
-import { HARD_STOP_THRESHOLD } from '@/lib/limits'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -41,26 +40,6 @@ export async function POST(req: NextRequest) {
       watched_seconds: Math.floor(watchedSeconds),
     })
   }
-
-  // Auto-check delivery minutes and toggle hard stop
-  const month = currentMonth()
-  const [y, m] = month.split('-').map(Number)
-  const monthStart = new Date(y, m - 1, 1).toISOString()
-  const monthEnd = new Date(y, m, 1).toISOString()
-
-  const { data: watchData } = await serviceClient
-    .from('watch_events')
-    .select('watched_seconds')
-    .gte('created_at', monthStart)
-    .lt('created_at', monthEnd)
-
-  const totalSeconds = watchData?.reduce((s, w) => s + (w.watched_seconds ?? 0), 0) ?? 0
-  const deliveryMinutes = Math.ceil(totalSeconds / 60)
-  const shouldHardStop = deliveryMinutes >= HARD_STOP_THRESHOLD
-
-  await serviceClient
-    .from('platform_settings')
-    .upsert({ key: 'hard_stop_enabled', value: shouldHardStop.toString() }, { onConflict: 'key' })
 
   return NextResponse.json({ ok: true })
 }

@@ -32,7 +32,7 @@ export default function SettingsPage() {
   }, [supabase, router])
 
   async function handleCancelSubscription() {
-    if (!confirm('Cancel your subscription? You will lose access at the end of the current billing period.')) return
+    if (!confirm('Cancel your subscription? Your access ends immediately and future charges stop. You can resubscribe anytime.')) return
     setWorking(true)
     setError('')
     try {
@@ -115,7 +115,7 @@ export default function SettingsPage() {
           <div>
             <p className="font-mono text-xs text-gray-400 mb-5 leading-relaxed">
               Your subscription is active at $4.99/month. Cancelling stops future charges
-              and removes access at the end of your current billing period.
+              and ends access immediately. You can resubscribe anytime.
             </p>
             <button
               onClick={handleCancelSubscription}

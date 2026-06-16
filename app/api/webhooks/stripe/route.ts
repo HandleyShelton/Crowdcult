@@ -17,31 +17,45 @@ export async function POST(req: NextRequest) {
 
   const supabase = createServiceClient()
 
-  async function setSubscribed(customerId: string, subscribed: boolean) {
+  // Source of truth: ask Stripe for the customer's current subscriptions and
+  // set is_subscribed accordingly. This is order-independent, so a delayed
+  // "subscription.deleted" event can't clobber a fresh resubscription.
+  async function syncSubscriptionStatus(customerId: string) {
+    let hasActive = false
+    try {
+      const subs = await stripe.subscriptions.list({
+        customer: customerId,
+        status: 'all',
+        limit: 10,
+      })
+      hasActive = subs.data.some(s => s.status === 'active' || s.status === 'trialing')
+    } catch (err) {
+      console.error('Failed to list subscriptions for', customerId, err)
+      return
+    }
     await supabase
       .from('users')
-      .update({ is_subscribed: subscribed })
+      .update({ is_subscribed: hasActive })
       .eq('stripe_customer_id', customerId)
   }
 
   switch (event.type) {
-    case 'customer.subscription.created':
-    case 'customer.subscription.updated': {
-      const sub = event.data.object as Stripe.Subscription
-      const active = sub.status === 'active' || sub.status === 'trialing'
-      await setSubscribed(sub.customer as string, active)
+    case 'checkout.session.completed': {
+      const session = event.data.object as Stripe.Checkout.Session
+      if (session.customer) await syncSubscriptionStatus(session.customer as string)
       break
     }
+    case 'customer.subscription.created':
+    case 'customer.subscription.updated':
     case 'customer.subscription.deleted': {
       const sub = event.data.object as Stripe.Subscription
-      await setSubscribed(sub.customer as string, false)
+      await syncSubscriptionStatus(sub.customer as string)
       break
     }
-    case 'invoice.payment_failed': {
+    case 'invoice.payment_failed':
+    case 'invoice.payment_succeeded': {
       const invoice = event.data.object as Stripe.Invoice
-      if (invoice.customer) {
-        await setSubscribed(invoice.customer as string, false)
-      }
+      if (invoice.customer) await syncSubscriptionStatus(invoice.customer as string)
       break
     }
   }

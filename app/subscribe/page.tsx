@@ -23,6 +23,18 @@ export default function SubscribePage() {
           router.replace('/browse')
           return
         }
+        // Self-heal: if a webhook was missed, reconcile against Stripe before
+        // showing the pay button — avoids charging an already-subscribed user.
+        try {
+          const res = await fetch('/api/user/sync-subscription', { method: 'POST' })
+          const { is_subscribed } = await res.json()
+          if (is_subscribed) {
+            router.replace('/browse')
+            return
+          }
+        } catch {
+          // Reconcile is best-effort; fall through to the pay button.
+        }
       }
       setChecking(false)
     })

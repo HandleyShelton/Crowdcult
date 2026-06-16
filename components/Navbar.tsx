@@ -52,7 +52,7 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
               <div className="flex items-center gap-2 ml-2">
                 <NavLink href="/login">[ login ]</NavLink>
                 <Link
-                  href="/subscribe"
+                  href="/signup"
                   className="bg-accent hover:bg-accent-hover text-white px-4 py-1.5 text-xs tracking-widest uppercase font-mono transition-colors"
                 >
                   JOIN →
@@ -90,7 +90,7 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
               <>
                 <MobileLink href="/login" onClose={() => setMenuOpen(false)}>» LOG IN</MobileLink>
                 <Link
-                  href="/subscribe"
+                  href="/signup"
                   onClick={() => setMenuOpen(false)}
                   className="bg-accent text-white text-center py-2 uppercase tracking-widest text-xs font-mono mt-2"
                 >

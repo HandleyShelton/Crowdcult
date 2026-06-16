@@ -41,19 +41,21 @@ export default function LoginPage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <div className="bg-surface border border-white/10 rounded-2xl p-8">
-          <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
-          <p className="text-gray-400 text-sm mb-8">Sign in to your Crowdcult account</p>
+        <div className="text-center mb-8">
+          <div className="font-mono text-xs text-accent uppercase tracking-widest mb-3">★ CROWDCULT ★</div>
+          <h1 className="font-display text-5xl tracking-wider text-white">WELCOME BACK</h1>
+        </div>
 
+        <div className="border border-red-900 bg-surface p-8">
           {error && (
-            <div className="bg-red-900/30 border border-red-500/30 text-red-300 text-sm px-4 py-3 rounded-lg mb-6">
-              {error}
+            <div className="border border-red-500/50 bg-red-900/20 text-red-400 font-mono text-xs px-4 py-3 mb-6 uppercase tracking-wide">
+              ERROR: {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1.5">
+              <label htmlFor="email" className="block font-mono text-xs text-gray-500 uppercase tracking-widest mb-2">
                 Email
               </label>
               <input
@@ -63,12 +65,12 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full bg-surface-2 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm"
+                className="w-full bg-black border border-white/10 focus:border-accent px-4 py-3 text-white font-mono text-sm placeholder-gray-700 focus:outline-none"
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1.5">
+              <label htmlFor="password" className="block font-mono text-xs text-gray-500 uppercase tracking-widest mb-2">
                 Password
               </label>
               <input
@@ -78,23 +80,23 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="w-full bg-surface-2 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm"
+                className="w-full bg-black border border-white/10 focus:border-accent px-4 py-3 text-white font-mono text-sm placeholder-gray-700 focus:outline-none"
                 placeholder="••••••••"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-accent hover:bg-accent-hover disabled:opacity-60 text-white py-3 rounded-lg font-semibold transition-colors mt-2"
+              className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 text-white py-3 font-mono text-sm uppercase tracking-widest transition-colors mt-2"
             >
-              {loading ? 'Signing in…' : 'Sign In'}
+              {loading ? 'SIGNING IN_' : 'SIGN IN →'}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-400 mt-6">
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" className="text-accent hover:text-accent-hover font-medium">
-              Sign up
+          <p className="text-center font-mono text-xs text-gray-600 mt-6 uppercase tracking-widest">
+            NO ACCOUNT?{' '}
+            <Link href="/signup" className="text-accent hover:text-white transition-colors">
+              CREATE ONE »
             </Link>
           </p>
         </div>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function SignupPage() {
@@ -11,6 +11,8 @@ export default function SignupPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const next = searchParams.get('next') ?? '/subscribe'
   const supabase = createClient()
 
   async function handleSubmit(e: React.FormEvent) {
@@ -30,26 +32,31 @@ export default function SignupPage() {
       return
     }
 
-    router.push('/subscribe')
+    router.push(next)
     router.refresh()
   }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <div className="bg-surface border border-white/10 rounded-2xl p-8">
-          <h1 className="text-3xl font-bold mb-2">Create account</h1>
-          <p className="text-gray-400 text-sm mb-8">Join Crowdcult and support independent filmmakers</p>
+        <div className="text-center mb-8">
+          <div className="font-mono text-xs text-accent uppercase tracking-widest mb-3">★ CROWDCULT ★</div>
+          <h1 className="font-display text-5xl tracking-wider text-white">CREATE ACCOUNT</h1>
+          <p className="font-mono text-xs text-gray-500 uppercase tracking-widest mt-2">
+            SUPPORT INDEPENDENT FILMMAKERS
+          </p>
+        </div>
 
+        <div className="border border-red-900 bg-surface p-8">
           {error && (
-            <div className="bg-red-900/30 border border-red-500/30 text-red-300 text-sm px-4 py-3 rounded-lg mb-6">
-              {error}
+            <div className="border border-red-500/50 bg-red-900/20 text-red-400 font-mono text-xs px-4 py-3 mb-6 uppercase tracking-wide">
+              ERROR: {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1.5">
+              <label htmlFor="email" className="block font-mono text-xs text-gray-500 uppercase tracking-widest mb-2">
                 Email
               </label>
               <input
@@ -59,12 +66,12 @@ export default function SignupPage() {
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full bg-surface-2 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm"
+                className="w-full bg-black border border-white/10 focus:border-accent px-4 py-3 text-white font-mono text-sm placeholder-gray-700 focus:outline-none"
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1.5">
+              <label htmlFor="password" className="block font-mono text-xs text-gray-500 uppercase tracking-widest mb-2">
                 Password
               </label>
               <input
@@ -75,27 +82,27 @@ export default function SignupPage() {
                 minLength={8}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="w-full bg-surface-2 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm"
+                className="w-full bg-black border border-white/10 focus:border-accent px-4 py-3 text-white font-mono text-sm placeholder-gray-700 focus:outline-none"
                 placeholder="At least 8 characters"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-accent hover:bg-accent-hover disabled:opacity-60 text-white py-3 rounded-lg font-semibold transition-colors mt-2"
+              className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 text-white py-3 font-mono text-sm uppercase tracking-widest transition-colors mt-2"
             >
-              {loading ? 'Creating account…' : 'Create Account'}
+              {loading ? 'CREATING ACCOUNT_' : 'CREATE ACCOUNT →'}
             </button>
           </form>
 
-          <p className="text-center text-xs text-gray-500 mt-4 leading-relaxed">
-            By creating an account you agree to our terms. Cancel anytime from your account settings.
+          <p className="text-center font-mono text-[10px] text-gray-700 mt-4 uppercase tracking-widest leading-relaxed">
+            BY SIGNING UP YOU AGREE TO OUR TERMS. CANCEL ANYTIME.
           </p>
 
-          <p className="text-center text-sm text-gray-400 mt-4">
-            Already have an account?{' '}
-            <Link href="/login" className="text-accent hover:text-accent-hover font-medium">
-              Sign in
+          <p className="text-center font-mono text-xs text-gray-600 mt-4 uppercase tracking-widest">
+            HAVE AN ACCOUNT?{' '}
+            <Link href="/login" className="text-accent hover:text-white transition-colors">
+              SIGN IN »
             </Link>
           </p>
         </div>

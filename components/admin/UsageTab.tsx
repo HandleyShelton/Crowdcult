@@ -34,8 +34,6 @@ function ProgressBar({ value, max, label }: { value: number; max: number; label:
 export default function UsageTab() {
   const [data, setData] = useState<UsageData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [toggling, setToggling] = useState(false)
-
   async function loadUsage() {
     setLoading(true)
     const res = await fetch('/api/admin/usage')
@@ -45,18 +43,6 @@ export default function UsageTab() {
   }
 
   useEffect(() => { loadUsage() }, [])
-
-  async function toggleHardStop() {
-    if (!data) return
-    setToggling(true)
-    await fetch('/api/admin/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key: 'hard_stop_enabled', value: (!data.hardStopEnabled).toString() }),
-    })
-    await loadUsage()
-    setToggling(false)
-  }
 
   if (loading) {
     return (
@@ -93,8 +79,8 @@ export default function UsageTab() {
             </p>
             <p className="text-sm mt-0.5 opacity-80">
               {deliveryPct >= 90
-                ? 'Consider enabling the hard stop or upgrading your Mux plan immediately.'
-                : 'Approaching Mux free tier limit — consider upgrading.'}
+                ? 'Hard stop is now active — subscribers see a maintenance page. Upgrade your Mux plan to restore access.'
+                : 'Approaching Mux free tier limit — consider upgrading your plan.'}
             </p>
           </div>
         </div>
@@ -115,26 +101,22 @@ export default function UsageTab() {
         />
       </div>
 
-      {/* Hard stop toggle */}
+      {/* Hard stop status (automatic) */}
       <div className="bg-surface rounded-xl p-6 border border-white/10">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-white">Hard Stop at 90k Minutes</h3>
+            <h3 className="font-semibold text-white">Auto Hard Stop</h3>
             <p className="text-sm text-gray-400 mt-1">
-              When enabled, if delivery exceeds 90,000 minutes subscribers see a maintenance page instead of video.
+              Automatically blocks video playback when delivery exceeds 90,000 minutes. Resets when usage drops below the threshold.
             </p>
           </div>
-          <button
-            onClick={toggleHardStop}
-            disabled={toggling}
-            className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors flex-shrink-0 ml-4 ${
-              data.hardStopEnabled ? 'bg-accent' : 'bg-surface-2'
-            }`}
-          >
-            <span className={`inline-block h-5 w-5 rounded-full bg-white transition-transform ${
-              data.hardStopEnabled ? 'translate-x-6' : 'translate-x-1'
-            }`} />
-          </button>
+          <span className={`flex-shrink-0 ml-4 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
+            data.hardStopEnabled
+              ? 'bg-red-900/40 text-red-300 border border-red-500/30'
+              : 'bg-green-900/40 text-green-300 border border-green-500/30'
+          }`}>
+            {data.hardStopEnabled ? 'ACTIVE' : 'Standby'}
+          </span>
         </div>
       </div>
 

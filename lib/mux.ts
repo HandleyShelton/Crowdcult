@@ -1,9 +1,23 @@
 import Mux from '@mux/mux-node'
 import { SignJWT, importPKCS8 } from 'jose'
 
-export const mux = new Mux({
-  tokenId: process.env.MUX_TOKEN_ID!,
-  tokenSecret: process.env.MUX_TOKEN_SECRET!,
+let _mux: Mux | null = null
+
+function getMux(): Mux {
+  if (!_mux) {
+    _mux = new Mux({
+      tokenId: process.env.MUX_TOKEN_ID!,
+      tokenSecret: process.env.MUX_TOKEN_SECRET!,
+    })
+  }
+  return _mux
+}
+
+// Proxy so all existing `mux.video.xxx` call sites keep working unchanged
+export const mux = new Proxy({} as Mux, {
+  get(_, prop: string | symbol) {
+    return (getMux() as unknown as Record<string | symbol, unknown>)[prop]
+  },
 })
 
 export async function signPlaybackToken(playbackId: string): Promise<string> {
@@ -21,5 +35,3 @@ export async function signPlaybackToken(playbackId: string): Promise<string> {
 
   return token
 }
-
-

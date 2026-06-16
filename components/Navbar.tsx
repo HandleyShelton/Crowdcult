@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 
 interface NavbarProps {
@@ -14,13 +13,11 @@ interface NavbarProps {
 
 export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
-  const router = useRouter()
   const supabase = createClient()
 
   async function handleSignOut() {
     await supabase.auth.signOut()
-    router.push('/')
-    router.refresh()
+    window.location.href = '/'
   }
 
   return (

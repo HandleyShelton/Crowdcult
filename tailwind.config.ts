@@ -16,9 +16,9 @@ const config: Config = {
         'accent-hover': '#c1070f',
       },
       fontFamily: {
-        sans: ['"Courier New"', 'Courier', 'monospace'],
-        mono: ['"Courier New"', 'Courier', 'monospace'],
-        display: ['VT323', 'monospace'],
+        sans: ['"Space Mono"', '"Courier New"', 'monospace'],
+        mono: ['"Space Mono"', '"Courier New"', 'monospace'],
+        display: ['"Bebas Neue"', 'sans-serif'],
       },
     },
   },

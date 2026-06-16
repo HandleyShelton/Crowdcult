@@ -28,46 +28,44 @@ export default function FilmCard({ film, locked = false, href }: FilmCardProps) 
     : '/placeholder-poster.jpg'
 
   const cardContent = (
-    <div className="group relative rounded-lg overflow-hidden bg-surface border border-white/5 hover:border-white/20 transition-all duration-200 cursor-pointer">
+    <div className="group relative overflow-hidden bg-black border border-white/10 hover:border-accent transition-colors duration-200 cursor-pointer">
       <div className="relative aspect-[2/3] overflow-hidden">
         <Image
           src={thumbnailSrc}
           alt={film.title}
           fill
-          className={`object-cover transition-transform duration-300 group-hover:scale-105 ${locked ? 'blur-md' : ''}`}
+          className={`object-cover transition-transform duration-300 group-hover:scale-105 ${locked ? 'blur-md brightness-50' : ''}`}
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
         {locked && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-            <div className="text-center">
-              <svg className="w-10 h-10 text-white/70 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-              </svg>
-              <span className="text-white/70 text-xs font-medium">Subscribe to Watch</span>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center font-mono">
+              <div className="text-accent text-2xl mb-1">🔒</div>
+              <span className="text-white/70 text-[10px] uppercase tracking-widest">SUBSCRIBE</span>
             </div>
           </div>
         )}
         {film.festival_laurels && !locked && (
-          <div className="absolute top-2 left-2">
-            <span className="bg-accent text-white text-xs px-2 py-1 rounded font-medium">
-              🏆 {film.festival_laurels}
-            </span>
+          <div className="absolute top-0 left-0 right-0 bg-accent px-2 py-0.5">
+            <span className="text-white text-[10px] font-mono uppercase tracking-wider">★ {film.festival_laurels}</span>
           </div>
         )}
         {film.genre && (
-          <div className="absolute bottom-2 left-2">
-            <span className="bg-black/70 text-white/80 text-xs px-2 py-1 rounded">
+          <div className="absolute bottom-0 left-0">
+            <span className="bg-black border-t border-r border-white/20 text-gray-400 text-[10px] font-mono px-2 py-0.5 uppercase tracking-wider">
               {film.genre}
             </span>
           </div>
         )}
+        {/* Red corner accent on hover */}
+        <div className="absolute top-0 right-0 w-0 h-0 border-l-[20px] border-l-transparent border-t-[20px] border-t-accent opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
-      <div className="p-3">
-        <h3 className="font-semibold text-white text-sm leading-tight mb-1 group-hover:text-accent transition-colors">
+      <div className="p-3 bg-black">
+        <h3 className="font-mono text-white text-xs leading-tight mb-1 uppercase tracking-wide group-hover:text-accent transition-colors">
           {film.title}
         </h3>
-        <p className="text-gray-400 text-xs">{film.director}</p>
-        <div className="flex items-center gap-2 mt-1 text-gray-500 text-xs">
+        <p className="text-gray-600 text-[10px] font-mono">{film.director}</p>
+        <div className="flex items-center gap-2 mt-1 text-gray-700 text-[10px] font-mono">
           <span>{film.year}</span>
           {film.runtime_minutes && (
             <>

@@ -9,14 +9,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: '#0a0a0a',
-        surface: '#141414',
-        'surface-2': '#1f1f1f',
+        background: '#000000',
+        surface: '#0c0c0c',
+        'surface-2': '#181818',
         accent: '#e50914',
-        'accent-hover': '#b8070f',
+        'accent-hover': '#c1070f',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['"Courier New"', 'Courier', 'monospace'],
+        mono: ['"Courier New"', 'Courier', 'monospace'],
+        display: ['VT323', 'monospace'],
       },
     },
   },

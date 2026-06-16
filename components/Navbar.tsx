@@ -24,48 +24,38 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
   }
 
   return (
-    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-white/10">
+    <nav className="sticky top-0 z-50 bg-black border-t-[3px] border-accent border-b border-red-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="text-2xl font-bold tracking-tight">
-            <span className="text-accent">Crowd</span>cult
+        <div className="flex items-center justify-between h-14">
+          <Link href="/" className="font-display text-3xl leading-none tracking-wider">
+            <span className="text-accent">CROWD</span><span className="text-white">CULT</span>
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-6 text-sm">
+          <div className="hidden md:flex items-center gap-1 text-sm font-mono">
             {isSubscribed && (
-              <Link href="/browse" className="text-gray-300 hover:text-white transition-colors">
-                Browse
-              </Link>
+              <NavLink href="/browse">[ BROWSE ]</NavLink>
             )}
-            <Link href="/submit" className="text-gray-300 hover:text-white transition-colors">
-              Submit Your Film
-            </Link>
-            <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
-              About
-            </Link>
+            <NavLink href="/submit">[ SUBMIT FILM ]</NavLink>
+            <NavLink href="/about">[ ABOUT ]</NavLink>
             {isAdmin && (
-              <Link href="/admin" className="text-accent hover:text-accent-hover transition-colors font-medium">
-                Admin
-              </Link>
+              <NavLink href="/admin" accent>[ ADMIN ]</NavLink>
             )}
             {user ? (
               <button
                 onClick={handleSignOut}
-                className="bg-surface-2 text-white px-4 py-2 rounded hover:bg-white/20 transition-colors"
+                className="ml-2 text-gray-400 hover:text-white border border-white/20 hover:border-white/50 px-3 py-1 transition-colors text-xs tracking-widest uppercase"
               >
-                Sign Out
+                sign out
               </button>
             ) : (
-              <div className="flex items-center gap-3">
-                <Link href="/login" className="text-gray-300 hover:text-white transition-colors">
-                  Log In
-                </Link>
+              <div className="flex items-center gap-2 ml-2">
+                <NavLink href="/login">[ login ]</NavLink>
                 <Link
-                  href="/signup"
-                  className="bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded transition-colors font-medium"
+                  href="/subscribe"
+                  className="bg-accent hover:bg-accent-hover text-white px-4 py-1.5 text-xs tracking-widest uppercase font-mono transition-colors"
                 >
-                  Start Watching
+                  JOIN →
                 </Link>
               </div>
             )}
@@ -73,54 +63,38 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden text-gray-300 hover:text-white p-2"
+            className="md:hidden text-gray-300 hover:text-accent p-2 font-mono text-lg"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {menuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
+            {menuOpen ? '[ × ]' : '[ ≡ ]'}
           </button>
         </div>
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden border-t border-white/10 py-4 flex flex-col gap-4 text-sm">
+          <div className="md:hidden border-t border-red-900 py-4 flex flex-col gap-3 text-sm font-mono">
             {isSubscribed && (
-              <Link href="/browse" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white">
-                Browse
-              </Link>
+              <MobileLink href="/browse" onClose={() => setMenuOpen(false)}>» BROWSE FILMS</MobileLink>
             )}
-            <Link href="/submit" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white">
-              Submit Your Film
-            </Link>
-            <Link href="/about" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white">
-              About
-            </Link>
+            <MobileLink href="/submit" onClose={() => setMenuOpen(false)}>» SUBMIT FILM</MobileLink>
+            <MobileLink href="/about" onClose={() => setMenuOpen(false)}>» ABOUT</MobileLink>
             {isAdmin && (
-              <Link href="/admin" onClick={() => setMenuOpen(false)} className="text-accent font-medium">
-                Admin
-              </Link>
+              <MobileLink href="/admin" onClose={() => setMenuOpen(false)} accent>» ADMIN</MobileLink>
             )}
             {user ? (
-              <button onClick={handleSignOut} className="text-left text-gray-300 hover:text-white">
-                Sign Out
+              <button onClick={handleSignOut} className="text-left text-gray-400 hover:text-white uppercase tracking-widest text-xs py-1">
+                » sign out
               </button>
             ) : (
               <>
-                <Link href="/login" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white">
-                  Log In
-                </Link>
+                <MobileLink href="/login" onClose={() => setMenuOpen(false)}>» LOG IN</MobileLink>
                 <Link
-                  href="/signup"
+                  href="/subscribe"
                   onClick={() => setMenuOpen(false)}
-                  className="bg-accent text-white px-4 py-2 rounded text-center font-medium"
+                  className="bg-accent text-white text-center py-2 uppercase tracking-widest text-xs font-mono mt-2"
                 >
-                  Start Watching
+                  JOIN CROWDCULT →
                 </Link>
               </>
             )}
@@ -128,5 +102,32 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
         )}
       </div>
     </nav>
+  )
+}
+
+function NavLink({ href, children, accent }: { href: string; children: React.ReactNode; accent?: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={`px-3 py-1.5 tracking-widest text-xs uppercase transition-colors hover:text-accent ${
+        accent ? 'text-accent' : 'text-gray-400 hover:text-white'
+      }`}
+    >
+      {children}
+    </Link>
+  )
+}
+
+function MobileLink({ href, children, onClose, accent }: { href: string; children: React.ReactNode; onClose: () => void; accent?: boolean }) {
+  return (
+    <Link
+      href={href}
+      onClick={onClose}
+      className={`uppercase tracking-widest text-xs py-1 transition-colors ${
+        accent ? 'text-accent' : 'text-gray-300 hover:text-white'
+      }`}
+    >
+      {children}
+    </Link>
   )
 }

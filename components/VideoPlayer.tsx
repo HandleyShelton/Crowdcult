@@ -48,7 +48,7 @@ export default function VideoPlayer({ playbackId, token, filmId, title }: VideoP
     <div className="w-full rounded-lg overflow-hidden bg-black shadow-2xl">
       <MuxPlayer
         playbackId={playbackId}
-        tokens={{ playback: token }}
+        tokens={token ? { playback: token } : undefined}
         metadata={{ video_title: title }}
         accentColor="#e50914"
         style={{ width: '100%', aspectRatio: '16/9' }}

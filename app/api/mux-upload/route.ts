@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
   try {
     upload = await mux.video.uploads.create({
       new_asset_settings: {
-        playback_policy: ['signed'],
+        playback_policy: ['public'],
         passthrough: film.id,
       },
       cors_origin: process.env.NEXT_PUBLIC_APP_URL ?? '*',

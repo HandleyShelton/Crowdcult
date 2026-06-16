@@ -107,4 +107,8 @@ CREATE POLICY "Anyone can read platform settings" ON public.platform_settings
 CREATE POLICY "No public access to payouts" ON public.filmmaker_payouts
   FOR ALL USING (false);
 
+-- Film submissions (public filmmakers submit for review)
+-- Run this migration in Supabase SQL editor:
+-- CREATE TABLE public.film_submissions ( ... )
+
 -- Service role bypasses RLS for admin operations

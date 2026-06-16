@@ -6,12 +6,13 @@ import FilmsTab from '@/components/admin/FilmsTab'
 import UsageTab from '@/components/admin/UsageTab'
 import PayoutsTab from '@/components/admin/PayoutsTab'
 import KillSwitch from '@/components/admin/KillSwitch'
+import SubmissionsTab from '@/components/admin/SubmissionsTab'
 
-const TABS = ['Upload', 'Films', 'Usage', 'Payouts', 'Kill Switch'] as const
+const TABS = ['Submissions', 'Upload', 'Films', 'Usage', 'Payouts', 'Kill Switch'] as const
 type Tab = typeof TABS[number]
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<Tab>('Upload')
+  const [activeTab, setActiveTab] = useState<Tab>('Submissions')
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -39,6 +40,7 @@ export default function AdminPage() {
 
       {/* Tab content */}
       <div className="min-h-[500px]">
+        {activeTab === 'Submissions' && <SubmissionsTab />}
         {activeTab === 'Upload' && <UploadTab />}
         {activeTab === 'Films' && <FilmsTab />}
         {activeTab === 'Usage' && <UsageTab />}

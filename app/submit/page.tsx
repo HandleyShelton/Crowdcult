@@ -1,71 +1,257 @@
+'use client'
+
+import { useState } from 'react'
+
+interface FormState {
+  name: string
+  email: string
+  title: string
+  director: string
+  directorBio: string
+  year: string
+  runtimeMinutes: string
+  genre: string
+  description: string
+  festivalLaurels: string
+  filmLink: string
+  message: string
+}
+
+const BLANK: FormState = {
+  name: '',
+  email: '',
+  title: '',
+  director: '',
+  directorBio: '',
+  year: '',
+  runtimeMinutes: '',
+  genre: '',
+  description: '',
+  festivalLaurels: '',
+  filmLink: '',
+  message: '',
+}
+
 export default function SubmitPage() {
+  const [form, setForm] = useState<FormState>(BLANK)
+  const [submitting, setSubmitting] = useState(false)
+  const [done, setDone] = useState(false)
+  const [error, setError] = useState('')
+
+  function set(field: keyof FormState) {
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      setForm(f => ({ ...f, [field]: e.target.value }))
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setSubmitting(true)
+    setError('')
+    try {
+      const res = await fetch('/api/submit-film', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) {
+        const json = await res.json()
+        throw new Error(json.error ?? 'Submission failed')
+      }
+      setDone(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (done) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold mb-3">Submission received</h1>
+          <p className="text-gray-400 leading-relaxed">
+            Thanks for submitting <strong className="text-white">{form.title}</strong>. We&apos;ll
+            review it and get back to you at <strong className="text-white">{form.email}</strong>.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">Submit Your Film</h1>
-        <p className="text-gray-400 text-lg leading-relaxed max-w-xl mx-auto">
-          We&apos;re looking for independent films with a strong point of view. Every submission is reviewed by a human being.
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="mb-10">
+        <h1 className="text-4xl font-bold mb-3">Submit your film</h1>
+        <p className="text-gray-400 leading-relaxed">
+          We curate indie films for our subscriber community. Fill out the form below and
+          we&apos;ll review your submission. If selected, we&apos;ll reach out to coordinate
+          distribution.
         </p>
       </div>
 
-      {/* Revenue share explainer */}
-      <div className="bg-accent/10 border border-accent/20 rounded-2xl p-8 mb-10">
-        <h2 className="text-xl font-bold mb-4 text-accent">How Revenue Share Works</h2>
-        <div className="space-y-4 text-sm text-gray-300 leading-relaxed">
-          <p>
-            <strong className="text-white">50% of net subscription revenue</strong> is distributed to filmmakers every month.
-            Net revenue = gross subscription revenue minus payment processing fees (typically ~3%).
-          </p>
-          <p>
-            Your share is calculated <strong className="text-white">pro rata by watch time</strong>: if your film accounts for 20% of all minutes watched that month, you receive 20% of the filmmaker pool.
-          </p>
-          <p>
-            Payments are issued on the <strong className="text-white">15th of each month</strong> for the prior month&apos;s watch data, via bank transfer or PayPal (your choice at onboarding).
-          </p>
-          <div className="bg-surface-2 rounded-lg p-4 mt-4 font-mono text-xs">
-            <div className="text-gray-500 mb-2">Example calculation:</div>
-            <div>Monthly subscribers: 200 × $4.99 = $998.00 gross</div>
-            <div>Processing fees (3%): −$29.94</div>
-            <div>Net revenue: $968.06</div>
-            <div>Filmmaker pool (50%): <span className="text-accent">$484.03</span></div>
-            <div className="mt-2">Your film watch share: 15%</div>
-            <div>Your payout: <span className="text-green-400">$72.60</span></div>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Contact */}
+        <section className="bg-surface rounded-xl p-6 border border-white/10 space-y-4">
+          <h2 className="font-semibold text-white text-lg">Your contact info</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Your name *" value={form.name} onChange={set('name')} required />
+            <Field label="Email *" type="email" value={form.email} onChange={set('email')} required />
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Tally embed placeholder */}
-      <div className="bg-surface border border-white/10 rounded-2xl overflow-hidden">
-        <div className="p-6 border-b border-white/10">
-          <h2 className="text-xl font-bold">Film Submission Form</h2>
-          <p className="text-gray-400 text-sm mt-1">
-            Tell us about your film. We review every submission within 2–4 weeks.
-          </p>
-        </div>
-        {/*
-          REPLACE THIS DIV WITH YOUR TALLY EMBED CODE:
-          <iframe src="https://tally.so/embed/YOUR_FORM_ID" width="100%" height="800" frameBorder="0" title="Film submission" />
-        */}
-        <div className="p-8 text-center text-gray-500">
-          <div className="bg-surface-2 rounded-xl p-12 border border-dashed border-white/20">
-            <svg className="w-12 h-12 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <p className="font-medium text-gray-400 mb-2">Tally Form Embed Placeholder</p>
-            <p className="text-sm text-gray-600 max-w-sm mx-auto">
-              Replace this section in <code className="text-gray-500">app/submit/page.tsx</code> with your Tally embed iframe.
-              Create your form at <strong className="text-gray-500">tally.so</strong> and copy the embed code.
-            </p>
+        {/* Film details */}
+        <section className="bg-surface rounded-xl p-6 border border-white/10 space-y-4">
+          <h2 className="font-semibold text-white text-lg">Film details</h2>
+          <Field label="Film title *" value={form.title} onChange={set('title')} required />
+          <Field label="Director *" value={form.director} onChange={set('director')} required />
+          <TextareaField
+            label="Director bio"
+            value={form.directorBio}
+            onChange={set('directorBio')}
+            placeholder="Short bio for the director page"
+            rows={3}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Field label="Year" type="number" value={form.year} onChange={set('year')} min="1900" max="2099" />
+            <Field label="Runtime (minutes)" type="number" value={form.runtimeMinutes} onChange={set('runtimeMinutes')} min="1" />
+            <div>
+              <label className="block text-sm text-gray-400 mb-1.5">Genre</label>
+              <select
+                value={form.genre}
+                onChange={set('genre')}
+                className="w-full bg-surface-2 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-accent"
+              >
+                <option value="">Select…</option>
+                {['Drama', 'Documentary', 'Comedy', 'Horror', 'Thriller', 'Sci-Fi', 'Romance', 'Animation', 'Other'].map(g => (
+                  <option key={g} value={g}>{g}</option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
-      </div>
+          <TextareaField
+            label="Synopsis *"
+            value={form.description}
+            onChange={set('description')}
+            required
+            rows={4}
+            placeholder="A brief description of your film"
+          />
+          <Field
+            label="Festival laurels / awards"
+            value={form.festivalLaurels}
+            onChange={set('festivalLaurels')}
+            placeholder="e.g. Sundance Official Selection 2025"
+          />
+        </section>
 
-      <div className="mt-8 text-sm text-gray-500 text-center">
-        Questions? Email us at{' '}
-        <a href="mailto:films@crowdcult.com" className="text-accent hover:text-accent-hover">
-          films@crowdcult.com
-        </a>
-      </div>
+        {/* File link */}
+        <section className="bg-surface rounded-xl p-6 border border-white/10 space-y-4">
+          <h2 className="font-semibold text-white text-lg">Film file</h2>
+          <p className="text-sm text-gray-400">
+            Provide a download or streaming link (Google Drive, Dropbox, Vimeo password-protected, etc.)
+            so we can review the film. If selected we&apos;ll coordinate the final upload.
+          </p>
+          <Field
+            label="Film link"
+            type="url"
+            value={form.filmLink}
+            onChange={set('filmLink')}
+            placeholder="https://drive.google.com/…"
+          />
+          <TextareaField
+            label="Additional notes"
+            value={form.message}
+            onChange={set('message')}
+            rows={3}
+            placeholder="Anything else you'd like us to know"
+          />
+        </section>
+
+        {error && (
+          <p className="text-red-400 text-sm">{error}</p>
+        )}
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full bg-accent hover:bg-accent/90 disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition-colors"
+        >
+          {submitting ? 'Submitting…' : 'Submit film for review'}
+        </button>
+      </form>
+    </div>
+  )
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  type = 'text',
+  required,
+  placeholder,
+  min,
+  max,
+}: {
+  label: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  type?: string
+  required?: boolean
+  placeholder?: string
+  min?: string
+  max?: string
+}) {
+  return (
+    <div>
+      <label className="block text-sm text-gray-400 mb-1.5">{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        required={required}
+        placeholder={placeholder}
+        min={min}
+        max={max}
+        className="w-full bg-surface-2 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-accent"
+      />
+    </div>
+  )
+}
+
+function TextareaField({
+  label,
+  value,
+  onChange,
+  required,
+  placeholder,
+  rows = 3,
+}: {
+  label: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+  required?: boolean
+  placeholder?: string
+  rows?: number
+}) {
+  return (
+    <div>
+      <label className="block text-sm text-gray-400 mb-1.5">{label}</label>
+      <textarea
+        value={value}
+        onChange={onChange}
+        required={required}
+        placeholder={placeholder}
+        rows={rows}
+        className="w-full bg-surface-2 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-accent resize-none"
+      />
     </div>
   )
 }

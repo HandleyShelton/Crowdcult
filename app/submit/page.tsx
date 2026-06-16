@@ -77,8 +77,8 @@ export default function SubmitPage() {
           </div>
           <h1 className="text-3xl font-bold mb-3">Submission received</h1>
           <p className="text-gray-400 leading-relaxed">
-            Thanks for submitting <strong className="text-white">{form.title}</strong>. We&apos;ll
-            review it and get back to you at <strong className="text-white">{form.email}</strong>.
+            Thanks for submitting <strong className="text-ink">{form.title}</strong>. We&apos;ll
+            review it and get back to you at <strong className="text-ink">{form.email}</strong>.
           </p>
         </div>
       </div>
@@ -99,7 +99,7 @@ export default function SubmitPage() {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Contact */}
         <section className="bg-surface rounded-xl p-6 border border-white/10 space-y-4">
-          <h2 className="font-semibold text-white text-lg">Your contact info</h2>
+          <h2 className="font-semibold text-ink text-lg">Your contact info</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Your name *" value={form.name} onChange={set('name')} required />
             <Field label="Email *" type="email" value={form.email} onChange={set('email')} required />
@@ -108,7 +108,7 @@ export default function SubmitPage() {
 
         {/* Film details */}
         <section className="bg-surface rounded-xl p-6 border border-white/10 space-y-4">
-          <h2 className="font-semibold text-white text-lg">Film details</h2>
+          <h2 className="font-semibold text-ink text-lg">Film details</h2>
           <Field label="Film title *" value={form.title} onChange={set('title')} required />
           <Field label="Director *" value={form.director} onChange={set('director')} required />
           <TextareaField
@@ -126,7 +126,7 @@ export default function SubmitPage() {
               <select
                 value={form.genre}
                 onChange={set('genre')}
-                className="w-full bg-surface-2 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-accent"
+                className="w-full bg-surface-2 border border-white/10 rounded-lg px-3 py-2.5 text-ink text-sm focus:outline-none focus:border-accent"
               >
                 <option value="">Select…</option>
                 {['Drama', 'Documentary', 'Comedy', 'Horror', 'Thriller', 'Sci-Fi', 'Romance', 'Animation', 'Other'].map(g => (
@@ -153,7 +153,7 @@ export default function SubmitPage() {
 
         {/* File link */}
         <section className="bg-surface rounded-xl p-6 border border-white/10 space-y-4">
-          <h2 className="font-semibold text-white text-lg">Film file</h2>
+          <h2 className="font-semibold text-ink text-lg">Film file</h2>
           <p className="text-sm text-gray-400">
             Provide a download or streaming link (Google Drive, Dropbox, Vimeo password-protected, etc.)
             so we can review the film. If selected we&apos;ll coordinate the final upload.
@@ -181,7 +181,7 @@ export default function SubmitPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-accent hover:bg-accent/90 disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition-colors"
+          className="w-full bg-accent hover:bg-accent/90 disabled:opacity-50 text-ink font-semibold py-3 rounded-lg transition-colors"
         >
           {submitting ? 'Submitting…' : 'Submit film for review'}
         </button>
@@ -220,7 +220,7 @@ function Field({
         placeholder={placeholder}
         min={min}
         max={max}
-        className="w-full bg-surface-2 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-accent"
+        className="w-full bg-surface-2 border border-white/10 rounded-lg px-3 py-2.5 text-ink text-sm placeholder-gray-600 focus:outline-none focus:border-accent"
       />
     </div>
   )
@@ -250,7 +250,7 @@ function TextareaField({
         required={required}
         placeholder={placeholder}
         rows={rows}
-        className="w-full bg-surface-2 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-accent resize-none"
+        className="w-full bg-surface-2 border border-white/10 rounded-lg px-3 py-2.5 text-ink text-sm placeholder-gray-600 focus:outline-none focus:border-accent resize-none"
       />
     </div>
   )

@@ -21,41 +21,45 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
   }
 
   return (
-    <nav className="sticky top-0 z-50 bg-black border-t-[3px] border-accent border-b border-red-900">
+    <nav className="sticky top-0 z-50 bg-background/90 backdrop-blur border-b border-line">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
-          <Link href="/" className="font-display text-3xl leading-none tracking-wider">
-            <span className="text-accent">CROWD</span><span className="text-white">CULT</span>
+          <Link href="/" className="flex items-center gap-2.5 group">
+            {/* terminal dots */}
+            <span className="hidden sm:flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-pink/80" />
+              <span className="w-2.5 h-2.5 rounded-full bg-yellow/80" />
+              <span className="w-2.5 h-2.5 rounded-full bg-green/80" />
+            </span>
+            <span className="font-display text-2xl leading-none tracking-wide">
+              <span className="text-accent">crowd</span><span className="text-ink">cult</span>
+            </span>
           </Link>
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1 text-sm font-mono flex-shrink-0">
-            {isSubscribed && (
-              <NavLink href="/browse">[ BROWSE ]</NavLink>
-            )}
-            <NavLink href="/submit">[ SUBMIT FILM ]</NavLink>
-            <NavLink href="/about">[ ABOUT ]</NavLink>
-            {isAdmin && (
-              <NavLink href="/admin" accent>[ ADMIN ]</NavLink>
-            )}
+            {isSubscribed && <NavLink href="/browse">browse</NavLink>}
+            <NavLink href="/submit">submit</NavLink>
+            <NavLink href="/about">about</NavLink>
+            {isAdmin && <NavLink href="/admin" color="text-yellow">admin</NavLink>}
             {user ? (
               <div className="flex items-center gap-2 ml-2">
-                <NavLink href="/settings">[ ACCOUNT ]</NavLink>
+                <NavLink href="/settings">account</NavLink>
                 <button
                   onClick={handleSignOut}
-                  className="flex-shrink-0 whitespace-nowrap text-gray-400 hover:text-white border border-white/20 hover:border-white/50 px-3 py-1 transition-colors text-xs tracking-widest uppercase"
+                  className="flex-shrink-0 whitespace-nowrap text-muted hover:text-ink border border-line hover:border-muted rounded-md px-3 py-1 transition-colors text-xs tracking-widest lowercase"
                 >
                   sign out
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-2 ml-2">
-                <NavLink href="/login">[ login ]</NavLink>
+                <NavLink href="/login">login</NavLink>
                 <Link
                   href="/signup"
-                  className="flex-shrink-0 whitespace-nowrap bg-accent hover:bg-accent-hover text-white px-4 py-1.5 text-xs tracking-widest uppercase font-mono transition-colors"
+                  className="flex-shrink-0 whitespace-nowrap bg-accent hover:bg-accent-hover text-background rounded-md px-4 py-1.5 text-xs tracking-widest lowercase font-mono font-bold transition-colors"
                 >
-                  JOIN →
+                  join →
                 </Link>
               </div>
             )}
@@ -63,41 +67,37 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden text-gray-300 hover:text-accent p-2 font-mono text-lg"
+            className="md:hidden text-muted hover:text-accent p-2 font-mono text-lg"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
-            {menuOpen ? '[ × ]' : '[ ≡ ]'}
+            {menuOpen ? '[x]' : '[≡]'}
           </button>
         </div>
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden border-t border-red-900 py-4 flex flex-col gap-3 text-sm font-mono">
-            {isSubscribed && (
-              <MobileLink href="/browse" onClose={() => setMenuOpen(false)}>» BROWSE FILMS</MobileLink>
-            )}
-            <MobileLink href="/submit" onClose={() => setMenuOpen(false)}>» SUBMIT FILM</MobileLink>
-            <MobileLink href="/about" onClose={() => setMenuOpen(false)}>» ABOUT</MobileLink>
-            {isAdmin && (
-              <MobileLink href="/admin" onClose={() => setMenuOpen(false)} accent>» ADMIN</MobileLink>
-            )}
+          <div className="md:hidden border-t border-line py-4 flex flex-col gap-3 text-sm font-mono">
+            {isSubscribed && <MobileLink href="/browse" onClose={() => setMenuOpen(false)}>~/browse</MobileLink>}
+            <MobileLink href="/submit" onClose={() => setMenuOpen(false)}>~/submit</MobileLink>
+            <MobileLink href="/about" onClose={() => setMenuOpen(false)}>~/about</MobileLink>
+            {isAdmin && <MobileLink href="/admin" onClose={() => setMenuOpen(false)} color="text-yellow">~/admin</MobileLink>}
             {user ? (
               <>
-                <MobileLink href="/settings" onClose={() => setMenuOpen(false)}>» ACCOUNT</MobileLink>
-                <button onClick={handleSignOut} className="text-left text-gray-400 hover:text-white uppercase tracking-widest text-xs py-1">
-                  » sign out
+                <MobileLink href="/settings" onClose={() => setMenuOpen(false)}>~/account</MobileLink>
+                <button onClick={handleSignOut} className="text-left text-muted hover:text-ink lowercase tracking-widest text-xs py-1">
+                  ~/sign-out
                 </button>
               </>
             ) : (
               <>
-                <MobileLink href="/login" onClose={() => setMenuOpen(false)}>» LOG IN</MobileLink>
+                <MobileLink href="/login" onClose={() => setMenuOpen(false)}>~/login</MobileLink>
                 <Link
                   href="/signup"
                   onClick={() => setMenuOpen(false)}
-                  className="bg-accent text-white text-center py-2 uppercase tracking-widest text-xs font-mono mt-2"
+                  className="bg-accent text-background text-center rounded-md py-2 lowercase tracking-widest text-xs font-mono font-bold mt-2"
                 >
-                  JOIN CROWDCULT →
+                  join crowdcult →
                 </Link>
               </>
             )}
@@ -108,12 +108,12 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
   )
 }
 
-function NavLink({ href, children, accent }: { href: string; children: React.ReactNode; accent?: boolean }) {
+function NavLink({ href, children, color }: { href: string; children: React.ReactNode; color?: string }) {
   return (
     <Link
       href={href}
-      className={`flex-shrink-0 whitespace-nowrap px-3 py-1.5 tracking-widest text-xs uppercase transition-colors hover:text-accent ${
-        accent ? 'text-accent' : 'text-gray-400 hover:text-white'
+      className={`flex-shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 tracking-widest text-xs lowercase transition-colors hover:bg-surface ${
+        color ?? 'text-muted hover:text-ink'
       }`}
     >
       {children}
@@ -121,14 +121,12 @@ function NavLink({ href, children, accent }: { href: string; children: React.Rea
   )
 }
 
-function MobileLink({ href, children, onClose, accent }: { href: string; children: React.ReactNode; onClose: () => void; accent?: boolean }) {
+function MobileLink({ href, children, onClose, color }: { href: string; children: React.ReactNode; onClose: () => void; color?: string }) {
   return (
     <Link
       href={href}
       onClick={onClose}
-      className={`uppercase tracking-widest text-xs py-1 transition-colors ${
-        accent ? 'text-accent' : 'text-gray-300 hover:text-white'
-      }`}
+      className={`lowercase tracking-widest text-xs py-1 transition-colors ${color ?? 'text-muted hover:text-ink'}`}
     >
       {children}
     </Link>

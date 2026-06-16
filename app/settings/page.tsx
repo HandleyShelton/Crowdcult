@@ -72,7 +72,7 @@ export default function SettingsPage() {
   return (
     <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="border-b border-red-900 pb-4 mb-10">
-        <h1 className="font-display text-5xl tracking-wider text-white">ACCOUNT</h1>
+        <h1 className="font-display text-5xl tracking-wider text-ink">ACCOUNT</h1>
       </div>
 
       {error && (
@@ -87,11 +87,11 @@ export default function SettingsPage() {
         <div className="space-y-3 font-mono text-sm">
           <div className="flex justify-between">
             <span className="text-gray-500 text-xs uppercase tracking-wider">Email</span>
-            <span className="text-white text-xs">{profile?.email}</span>
+            <span className="text-ink text-xs">{profile?.email}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500 text-xs uppercase tracking-wider">Member since</span>
-            <span className="text-white text-xs">
+            <span className="text-ink text-xs">
               {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : '—'}
             </span>
           </div>
@@ -130,7 +130,7 @@ export default function SettingsPage() {
             <p className="font-mono text-xs text-gray-500 mb-5">You do not have an active subscription.</p>
             <a
               href="/subscribe"
-              className="bg-accent hover:bg-accent-hover text-white font-mono text-xs uppercase tracking-widest px-5 py-2.5 transition-colors inline-block"
+              className="bg-accent hover:bg-accent-hover text-ink font-mono text-xs uppercase tracking-widest px-5 py-2.5 transition-colors inline-block"
             >
               SUBSCRIBE FOR $4.99/MO →
             </a>
@@ -139,7 +139,7 @@ export default function SettingsPage() {
       </section>
 
       {/* Danger zone */}
-      <section className="border border-red-900/50 bg-black p-6">
+      <section className="border border-red-900/50 bg-background p-6">
         <h2 className="font-mono text-xs text-red-900 uppercase tracking-widest mb-4">{'// DANGER ZONE'}</h2>
         <p className="font-mono text-xs text-gray-600 mb-5 leading-relaxed">
           Permanently deletes your account and all associated data. This cannot be undone.

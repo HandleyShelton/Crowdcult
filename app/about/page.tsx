@@ -1,13 +1,13 @@
 export default function AboutPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="border-b border-red-900 pb-4 mb-12">
-        <h1 className="font-display text-6xl tracking-wider text-white">ABOUT CROWDCULT</h1>
+      <div className="border-b border-line pb-4 mb-12">
+        <h1 className="font-display text-6xl tracking-wider text-ink">ABOUT CROWDCULT</h1>
       </div>
 
       <div className="space-y-14 font-mono text-gray-400 leading-relaxed">
         <section>
-          <h2 className="font-display text-3xl tracking-wider text-white mb-4">OUR MISSION</h2>
+          <h2 className="font-display text-3xl tracking-wider text-ink mb-4">OUR MISSION</h2>
           <p className="text-sm mb-4">
             Crowdcult exists because independent filmmakers deserve a fair deal. Streaming has transformed how people watch movies, but for independent artists, the financial reality is brutal — algorithmically-determined placement, pennies per stream, and zero relationship with their audience.
           </p>
@@ -17,17 +17,17 @@ export default function AboutPage() {
         </section>
 
         <section id="revenue-share">
-          <h2 className="font-display text-3xl tracking-wider text-white mb-6">HOW FILMMAKER PAYMENTS WORK</h2>
+          <h2 className="font-display text-3xl tracking-wider text-ink mb-6">HOW FILMMAKER PAYMENTS WORK</h2>
           <div className="space-y-4">
             {[
               { n: '01', title: 'The filmmaker pool', body: 'Every month we take 50% of net subscription revenue (gross revenue minus Stripe processing fees of ~3%) and set it aside as the filmmaker payment pool.' },
               { n: '02', title: 'Pro rata by watch time', body: 'We measure how many seconds each film was watched that month. A film with 20% of total watch time gets 20% of the filmmaker pool. This rewards films that audiences actually spend time with, not just start.' },
               { n: '03', title: 'Monthly payments', body: "Payments go out on the 15th of each month for the prior month's activity. Filmmakers can track their watch time and projected earnings in their filmmaker dashboard." },
             ].map(({ n, title, body }) => (
-              <div key={n} className="border border-red-900 bg-surface p-6 flex gap-4">
+              <div key={n} className="border border-line bg-surface p-6 flex gap-4">
                 <span className="text-accent font-display text-3xl leading-none flex-shrink-0">{n}</span>
                 <div>
-                  <h3 className="text-white text-sm uppercase tracking-wider mb-2">{title}</h3>
+                  <h3 className="text-ink text-sm uppercase tracking-wider mb-2">{title}</h3>
                   <p className="text-xs leading-relaxed">{body}</p>
                 </div>
               </div>
@@ -36,7 +36,7 @@ export default function AboutPage() {
         </section>
 
         <section>
-          <h2 className="font-display text-3xl tracking-wider text-white mb-4">WHAT WE CURATE</h2>
+          <h2 className="font-display text-3xl tracking-wider text-ink mb-4">WHAT WE CURATE</h2>
           <p className="text-sm mb-4">
             We review every film submission personally. We&apos;re looking for films with a strong directorial voice, something to say, and production quality that respects the audience&apos;s time. We don&apos;t require festival credentials, but we do require craft.
           </p>
@@ -46,11 +46,11 @@ export default function AboutPage() {
         </section>
 
         <section>
-          <h2 className="font-display text-3xl tracking-wider text-white mb-4">CONTACT</h2>
+          <h2 className="font-display text-3xl tracking-wider text-ink mb-4">CONTACT</h2>
           <div className="space-y-2 text-xs">
-            <p>» General: <a href="mailto:hello@crowdcult.com" className="text-accent hover:text-white transition-colors">hello@crowdcult.com</a></p>
-            <p>» Submissions: <a href="mailto:films@crowdcult.com" className="text-accent hover:text-white transition-colors">films@crowdcult.com</a></p>
-            <p>» Filmmaker support: <a href="mailto:filmmakers@crowdcult.com" className="text-accent hover:text-white transition-colors">filmmakers@crowdcult.com</a></p>
+            <p>» General: <a href="mailto:hello@crowdcult.com" className="text-accent hover:text-ink transition-colors">hello@crowdcult.com</a></p>
+            <p>» Submissions: <a href="mailto:films@crowdcult.com" className="text-accent hover:text-ink transition-colors">films@crowdcult.com</a></p>
+            <p>» Filmmaker support: <a href="mailto:filmmakers@crowdcult.com" className="text-accent hover:text-ink transition-colors">filmmakers@crowdcult.com</a></p>
           </div>
         </section>
       </div>

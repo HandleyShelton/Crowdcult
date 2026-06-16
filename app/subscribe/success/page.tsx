@@ -48,7 +48,7 @@ export default function SubscribeSuccessPage() {
         {confirmed ? (
           <>
             <div className="font-display text-7xl text-accent mb-4 tracking-wider">OK!</div>
-            <h1 className="font-display text-4xl tracking-wider text-white mb-3">YOU&apos;RE SUBSCRIBED</h1>
+            <h1 className="font-display text-4xl tracking-wider text-ink mb-3">YOU&apos;RE SUBSCRIBED</h1>
             <p className="font-mono text-xs text-gray-400 mb-2 leading-relaxed uppercase tracking-wider">
               Welcome to Crowdcult. Taking you to the films...
             </p>
@@ -57,7 +57,7 @@ export default function SubscribeSuccessPage() {
             </p>
             <Link
               href="/browse"
-              className="bg-accent hover:bg-accent-hover text-white px-10 py-3 font-mono text-sm uppercase tracking-widest transition-colors"
+              className="bg-accent hover:bg-accent-hover text-ink px-10 py-3 font-mono text-sm uppercase tracking-widest transition-colors"
             >
               START WATCHING →
             </Link>
@@ -65,14 +65,14 @@ export default function SubscribeSuccessPage() {
         ) : timedOut ? (
           <>
             <div className="font-display text-7xl text-accent mb-4 tracking-wider">...</div>
-            <h1 className="font-display text-4xl tracking-wider text-white mb-3">ALMOST THERE</h1>
+            <h1 className="font-display text-4xl tracking-wider text-ink mb-3">ALMOST THERE</h1>
             <p className="font-mono text-xs text-gray-400 mb-10 leading-relaxed uppercase tracking-wider">
               Your payment went through. Activation is taking a moment — refresh in a few seconds,
               or check your account page.
             </p>
             <Link
               href="/settings"
-              className="border border-white/30 hover:border-accent text-white px-10 py-3 font-mono text-sm uppercase tracking-widest transition-colors"
+              className="border border-white/30 hover:border-accent text-ink px-10 py-3 font-mono text-sm uppercase tracking-widest transition-colors"
             >
               VIEW ACCOUNT →
             </Link>
@@ -80,7 +80,7 @@ export default function SubscribeSuccessPage() {
         ) : (
           <>
             <div className="font-display text-7xl text-accent mb-4 tracking-wider animate-pulse">$</div>
-            <h1 className="font-display text-4xl tracking-wider text-white mb-3">ACTIVATING</h1>
+            <h1 className="font-display text-4xl tracking-wider text-ink mb-3">ACTIVATING</h1>
             <p className="font-mono text-xs text-gray-500 leading-relaxed uppercase tracking-widest animate-pulse">
               Confirming your subscription_
             </p>

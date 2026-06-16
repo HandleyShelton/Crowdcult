@@ -56,8 +56,8 @@ export default function BrowseClient() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="border-b border-red-900 pb-4 mb-8">
-        <h1 className="font-display text-5xl tracking-wider text-white">BROWSE FILMS</h1>
+      <div className="border-b border-line pb-4 mb-8">
+        <h1 className="font-display text-5xl tracking-wider text-ink">BROWSE FILMS</h1>
       </div>
 
       {/* Filters */}
@@ -67,7 +67,7 @@ export default function BrowseClient() {
           placeholder="Search by title or director..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="bg-black border border-white/10 focus:border-accent px-4 py-2 text-white placeholder-gray-700 focus:outline-none flex-1 text-sm font-mono"
+          className="bg-background border border-white/10 focus:border-accent px-4 py-2 text-ink placeholder-gray-700 focus:outline-none flex-1 text-sm font-mono"
         />
         <div className="flex gap-2 flex-wrap">
           {['All', ...genres].map(g => (
@@ -76,8 +76,8 @@ export default function BrowseClient() {
               onClick={() => setSelectedGenre(g)}
               className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider transition-colors border ${
                 selectedGenre === g
-                  ? 'bg-accent border-accent text-white'
-                  : 'bg-black border-white/10 text-gray-400 hover:border-accent hover:text-white'
+                  ? 'bg-accent border-accent text-ink'
+                  : 'bg-background border-white/10 text-gray-400 hover:border-accent hover:text-ink'
               }`}
             >
               {g}

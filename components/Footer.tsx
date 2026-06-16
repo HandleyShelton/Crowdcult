@@ -1,51 +1,58 @@
 import Link from 'next/link'
+import Marquee from '@/components/Marquee'
 
 export default function Footer() {
   return (
-    <footer className="bg-black border-t-[3px] border-accent mt-16">
-      {/* Marquee strip */}
-      <div className="border-b border-red-900 overflow-hidden py-1.5 bg-accent/5">
-        <div className="marquee-inner text-xs font-mono text-red-700 tracking-widest select-none">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <span key={i} className="mx-8">★ CROWDCULT ★ INDEPENDENT CINEMA ★ 50% TO FILMMAKERS ★ REAL FILMS ★ REAL PEOPLE</span>
-          ))}
-        </div>
-      </div>
+    <footer className="mt-16">
+      <Marquee
+        items={['crowdcult', 'independent cinema', '50% to filmmakers', 'real films', 'real people', 'no algorithms']}
+        color="text-accent"
+        speed={32}
+      />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <div className="font-display text-4xl mb-3 tracking-wider">
-              <span className="text-accent">CROWD</span><span className="text-white">CULT</span>
+      <div className="bg-background border-b border-line">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-pink/80" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-yellow/80" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-green/80" />
+                </span>
+                <span className="font-display text-2xl tracking-wide">
+                  <span className="text-accent">crowd</span><span className="text-ink">cult</span>
+                </span>
+              </div>
+              <p className="text-muted text-xs leading-relaxed font-mono">
+                independent cinema for people who believe storytelling matters.
+                50% of every subscription goes directly to the filmmakers.
+              </p>
             </div>
-            <p className="text-gray-500 text-xs leading-relaxed font-mono">
-              Independent cinema for people who believe storytelling matters.<br />
-              50% of every subscription goes directly to the filmmakers.
-            </p>
+
+            <div>
+              <h3 className="text-ink font-mono text-xs lowercase tracking-widest mb-4 border-b border-line pb-2">~/platform</h3>
+              <div className="flex flex-col gap-2 text-xs font-mono text-muted">
+                <FooterLink href="/browse">browse films</FooterLink>
+                <FooterLink href="/subscribe">subscribe</FooterLink>
+                <FooterLink href="/about">about us</FooterLink>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-ink font-mono text-xs lowercase tracking-widest mb-4 border-b border-line pb-2">~/filmmakers</h3>
+              <div className="flex flex-col gap-2 text-xs font-mono text-muted">
+                <FooterLink href="/submit">submit your film</FooterLink>
+                <FooterLink href="/about#revenue-share">revenue share model</FooterLink>
+                <a href="mailto:hello@crowdcult.com" className="hover:text-ink transition-colors">contact us</a>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <h3 className="text-white font-mono text-xs uppercase tracking-widest mb-4 border-b border-red-900 pb-2">{'// PLATFORM'}</h3>
-            <div className="flex flex-col gap-2 text-xs font-mono text-gray-500">
-              <FooterLink href="/browse">» Browse Films</FooterLink>
-              <FooterLink href="/subscribe">» Subscribe</FooterLink>
-              <FooterLink href="/about">» About Us</FooterLink>
-            </div>
+          <div className="border-t border-line mt-8 pt-6 text-xs font-mono text-muted/70 flex flex-col sm:flex-row justify-between gap-2 lowercase tracking-wide">
+            <span>© {new Date().getFullYear()} crowdcult. all rights reserved.</span>
+            <span className="text-accent/60">built for independent cinema<span className="cursor" aria-hidden /></span>
           </div>
-
-          <div>
-            <h3 className="text-white font-mono text-xs uppercase tracking-widest mb-4 border-b border-red-900 pb-2">{'// FILMMAKERS'}</h3>
-            <div className="flex flex-col gap-2 text-xs font-mono text-gray-500">
-              <FooterLink href="/submit">» Submit Your Film</FooterLink>
-              <FooterLink href="/about#revenue-share">» Revenue Share Model</FooterLink>
-              <a href="mailto:hello@crowdcult.com" className="hover:text-white transition-colors">» Contact Us</a>
-            </div>
-          </div>
-        </div>
-
-        <div className="border-t border-red-900/50 mt-8 pt-6 text-xs font-mono text-gray-700 flex flex-col sm:flex-row justify-between gap-2">
-          <span>© {new Date().getFullYear()} CROWDCULT. ALL RIGHTS RESERVED.</span>
-          <span className="text-red-900">BUILT FOR INDEPENDENT CINEMA_</span>
         </div>
       </div>
     </footer>
@@ -54,7 +61,7 @@ export default function Footer() {
 
 function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="hover:text-white transition-colors">
+    <Link href={href} className="hover:text-ink transition-colors">
       {children}
     </Link>
   )

@@ -30,7 +30,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col bg-background text-white">
+      <body className="min-h-screen flex flex-col bg-background text-ink">
         <Navbar user={user} isSubscribed={isSubscribed} isAdmin={isAdmin} />
         <main className="flex-1">{children}</main>
         <Footer />

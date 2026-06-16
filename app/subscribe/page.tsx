@@ -78,16 +78,16 @@ export default function SubscribePage() {
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
           <div className="font-mono text-xs text-accent uppercase tracking-widest mb-3">★ JOIN CROWDCULT ★</div>
-          <h1 className="font-display text-5xl tracking-wider text-white mb-2">START WATCHING</h1>
+          <h1 className="font-display text-5xl tracking-wider text-ink mb-2">START WATCHING</h1>
           <p className="font-mono text-xs text-gray-500 uppercase tracking-widest">
             UNLIMITED INDEPENDENT CINEMA · CANCEL ANYTIME
           </p>
         </div>
 
-        <div className="border border-red-900 bg-surface p-8">
-          <div className="flex items-center justify-between mb-6 pb-6 border-b border-red-900">
+        <div className="border border-line bg-surface p-8">
+          <div className="flex items-center justify-between mb-6 pb-6 border-b border-line">
             <div>
-              <div className="font-mono text-sm text-white uppercase tracking-wide">CROWDCULT MONTHLY</div>
+              <div className="font-mono text-sm text-ink uppercase tracking-wide">CROWDCULT MONTHLY</div>
               <div className="font-mono text-xs text-gray-500 mt-1 uppercase tracking-wider">UNLIMITED FILMS · CANCEL ANYTIME</div>
             </div>
             <div className="text-right">
@@ -120,7 +120,7 @@ export default function SubscribePage() {
           <button
             onClick={handleSubscribe}
             disabled={loading}
-            className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 text-white py-4 font-mono text-sm uppercase tracking-widest transition-colors"
+            className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 text-ink py-4 font-mono text-sm uppercase tracking-widest transition-colors"
           >
             {loading ? 'REDIRECTING TO CHECKOUT_' : 'SUBSCRIBE FOR $4.99/MONTH →'}
           </button>

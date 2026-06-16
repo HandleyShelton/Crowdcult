@@ -1,14 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #000000;
-  --surface: #0c0c0c;
-  --surface-2: #181818;
-  --accent: #e50914;
+  /* Tokyo-night inspired soft programmer dark mode */
+  --background: #1a1b26;
+  --surface: #1f2335;
+  --surface-2: #292e42;
+  --line: #2e3450;
+  --ink: #c0caf5;
+  --muted: #565f89;
+  --accent: #bb9af7;
+  --accent-hover: #9d7cd8;
+  --cyan: #7dcfff;
+  --green: #9ece6a;
+  --pink: #f7768e;
+  --yellow: #e0af68;
 }
 
 * {
@@ -17,11 +26,12 @@
 
 body {
   background-color: var(--background);
-  color: #ffffff;
+  color: var(--ink);
   font-family: 'Space Mono', 'Courier New', monospace;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Scanlines overlay — apply .scanlines to any container */
+/* Soft subtle scanlines */
 .scanlines {
   position: relative;
 }
@@ -33,11 +43,19 @@ body {
     0deg,
     transparent,
     transparent 3px,
-    rgba(0, 0, 0, 0.18) 3px,
-    rgba(0, 0, 0, 0.18) 4px
+    rgba(0, 0, 0, 0.06) 3px,
+    rgba(0, 0, 0, 0.06) 4px
   );
   pointer-events: none;
   z-index: 2;
+}
+
+/* Soft glow utility for accent surfaces */
+.glow {
+  box-shadow: 0 0 24px -6px rgba(187, 154, 247, 0.35);
+}
+.glow-cyan {
+  box-shadow: 0 0 24px -6px rgba(125, 207, 255, 0.3);
 }
 
 /* Blinking cursor */
@@ -46,35 +64,40 @@ body {
   50% { opacity: 0; }
 }
 .cursor::after {
-  content: '█';
+  content: '▋';
   animation: blink 1.1s step-end infinite;
   color: var(--accent);
   margin-left: 2px;
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #000; }
-::-webkit-scrollbar-thumb { background: var(--accent); }
-::-webkit-scrollbar-thumb:hover { background: #ff3333; }
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
 /* Mux player */
 mux-player {
   width: 100%;
   aspect-ratio: 16 / 9;
   display: block;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-/* Retro marquee strip */
+/* Marquee */
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
 .marquee-inner {
   display: flex;
-  animation: marquee 28s linear infinite;
   width: max-content;
+  animation: marquee 30s linear infinite;
 }
-.marquee-inner:hover {
+.marquee-inner.reverse {
+  animation-direction: reverse;
+}
+.marquee-track:hover .marquee-inner {
   animation-play-state: paused;
 }

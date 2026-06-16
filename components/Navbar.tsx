@@ -39,12 +39,15 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
               <NavLink href="/admin" accent>[ ADMIN ]</NavLink>
             )}
             {user ? (
-              <button
-                onClick={handleSignOut}
-                className="ml-2 text-gray-400 hover:text-white border border-white/20 hover:border-white/50 px-3 py-1 transition-colors text-xs tracking-widest uppercase"
-              >
-                sign out
-              </button>
+              <div className="flex items-center gap-2 ml-2">
+                <NavLink href="/settings">[ ACCOUNT ]</NavLink>
+                <button
+                  onClick={handleSignOut}
+                  className="text-gray-400 hover:text-white border border-white/20 hover:border-white/50 px-3 py-1 transition-colors text-xs tracking-widest uppercase"
+                >
+                  sign out
+                </button>
+              </div>
             ) : (
               <div className="flex items-center gap-2 ml-2">
                 <NavLink href="/login">[ login ]</NavLink>
@@ -80,9 +83,12 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
               <MobileLink href="/admin" onClose={() => setMenuOpen(false)} accent>» ADMIN</MobileLink>
             )}
             {user ? (
-              <button onClick={handleSignOut} className="text-left text-gray-400 hover:text-white uppercase tracking-widest text-xs py-1">
-                » sign out
-              </button>
+              <>
+                <MobileLink href="/settings" onClose={() => setMenuOpen(false)}>» ACCOUNT</MobileLink>
+                <button onClick={handleSignOut} className="text-left text-gray-400 hover:text-white uppercase tracking-widest text-xs py-1">
+                  » sign out
+                </button>
+              </>
             ) : (
               <>
                 <MobileLink href="/login" onClose={() => setMenuOpen(false)}>» LOG IN</MobileLink>

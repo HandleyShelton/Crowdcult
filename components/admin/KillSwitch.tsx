@@ -64,7 +64,7 @@ export default function KillSwitch() {
 
         {!enabled && (
           <div className="bg-red-900/30 border border-red-500/30 rounded-lg px-4 py-3 text-sm text-red-300">
-            ⚠ Platform is offline. Toggle above to restore service.
+            [!] Platform is offline. Toggle above to restore service.
           </div>
         )}
       </div>

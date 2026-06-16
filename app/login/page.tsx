@@ -20,10 +20,10 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+    const { data: { user: authedUser }, error: authError } = await supabase.auth.signInWithPassword({ email, password })
 
-    if (authError) {
-      setError(authError.message)
+    if (authError || !authedUser) {
+      setError(authError?.message ?? 'Sign in failed')
       setLoading(false)
       return
     }
@@ -31,7 +31,7 @@ export default function LoginPage() {
     const { data: profile } = await supabase
       .from('users')
       .select('is_subscribed')
-      .eq('email', email)
+      .eq('id', authedUser.id)
       .single()
 
     router.push(profile?.is_subscribed ? next : '/subscribe')

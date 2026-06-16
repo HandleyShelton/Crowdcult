@@ -37,7 +37,6 @@ export default function BrowseClient() {
       const list = data ?? []
       setFilms(list)
       setFiltered(list)
-
       const uniqueGenres = Array.from(new Set(list.map(f => f.genre).filter(Boolean) as string[]))
       setGenres(uniqueGenres)
       setLoading(false)
@@ -47,40 +46,38 @@ export default function BrowseClient() {
 
   useEffect(() => {
     let result = films
-    if (selectedGenre !== 'All') {
-      result = result.filter(f => f.genre === selectedGenre)
-    }
+    if (selectedGenre !== 'All') result = result.filter(f => f.genre === selectedGenre)
     if (search.trim()) {
       const q = search.toLowerCase()
-      result = result.filter(
-        f => f.title.toLowerCase().includes(q) || f.director.toLowerCase().includes(q)
-      )
+      result = result.filter(f => f.title.toLowerCase().includes(q) || f.director.toLowerCase().includes(q))
     }
     setFiltered(result)
   }, [films, selectedGenre, search])
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-4xl font-bold mb-8">Browse Films</h1>
+      <div className="border-b border-red-900 pb-4 mb-8">
+        <h1 className="font-display text-5xl tracking-wider text-white">BROWSE FILMS</h1>
+      </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <input
           type="search"
-          placeholder="Search by title or director…"
+          placeholder="Search by title or director..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="bg-surface border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-accent flex-1 text-sm"
+          className="bg-black border border-white/10 focus:border-accent px-4 py-2 text-white placeholder-gray-700 focus:outline-none flex-1 text-sm font-mono"
         />
         <div className="flex gap-2 flex-wrap">
           {['All', ...genres].map(g => (
             <button
               key={g}
               onClick={() => setSelectedGenre(g)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider transition-colors border ${
                 selectedGenre === g
-                  ? 'bg-accent text-white'
-                  : 'bg-surface border border-white/10 text-gray-300 hover:border-white/30'
+                  ? 'bg-accent border-accent text-white'
+                  : 'bg-black border-white/10 text-gray-400 hover:border-accent hover:text-white'
               }`}
             >
               {g}
@@ -92,13 +89,13 @@ export default function BrowseClient() {
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="rounded-lg bg-surface animate-pulse aspect-[2/3]" />
+            <div key={i} className="bg-surface animate-pulse aspect-[2/3] border border-white/5" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <p className="text-xl mb-2">No films found</p>
-          <p className="text-sm">Try a different search or genre filter.</p>
+        <div className="text-center py-20">
+          <p className="font-mono text-gray-500 uppercase tracking-widest text-sm">// NO FILMS FOUND</p>
+          <p className="font-mono text-xs text-gray-700 mt-2">Try a different search or genre filter.</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">

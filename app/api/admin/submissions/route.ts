@@ -30,7 +30,9 @@ export async function PATCH(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const { id, status, notes } = await req.json()
-  if (!id || !status) return NextResponse.json({ error: 'Missing id or status' }, { status: 400 })
+  if (!id || !['approved', 'rejected', 'pending'].includes(status)) {
+    return NextResponse.json({ error: 'Invalid id or status' }, { status: 400 })
+  }
 
   const serviceClient = createServiceClient()
   const { error } = await serviceClient

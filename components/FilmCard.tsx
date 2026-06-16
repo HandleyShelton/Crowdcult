@@ -38,16 +38,16 @@ export default function FilmCard({ film, locked = false, href }: FilmCardProps) 
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
         {locked && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center font-mono">
-              <div className="text-accent text-2xl mb-1">🔒</div>
-              <span className="text-white/70 text-[10px] uppercase tracking-widest">SUBSCRIBE</span>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+            <div className="text-center font-mono border border-accent/40 px-3 py-2">
+              <div className="text-accent text-xs font-display tracking-widest">LOCKED</div>
+              <span className="text-white/50 text-[9px] uppercase tracking-widest">SUBSCRIBE TO WATCH</span>
             </div>
           </div>
         )}
         {film.festival_laurels && !locked && (
           <div className="absolute top-0 left-0 right-0 bg-accent px-2 py-0.5">
-            <span className="text-white text-[10px] font-mono uppercase tracking-wider">★ {film.festival_laurels}</span>
+            <span className="text-white text-[10px] font-mono uppercase tracking-wider">* {film.festival_laurels}</span>
           </div>
         )}
         {film.genre && (

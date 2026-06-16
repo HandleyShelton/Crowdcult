@@ -11,9 +11,12 @@ export async function POST(req: NextRequest) {
 
   const { filmId, watchedSeconds } = await req.json()
 
-  if (!filmId || typeof watchedSeconds !== 'number') {
+  if (!filmId || typeof watchedSeconds !== 'number' || watchedSeconds < 0) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
+
+  const { data: film } = await supabase.from('films').select('id').eq('id', filmId).eq('status', 'ready').single()
+  if (!film) return NextResponse.json({ error: 'Film not found' }, { status: 404 })
 
   // Upsert watch event
   const { data: existing } = await supabase

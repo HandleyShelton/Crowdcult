@@ -15,8 +15,8 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const supabase = createClient()
 
-  async function handleSignOut() {
-    await supabase.auth.signOut()
+  function handleSignOut() {
+    supabase.auth.signOut()
     window.location.href = '/'
   }
 

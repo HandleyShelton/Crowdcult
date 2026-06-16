@@ -94,7 +94,7 @@ export default function BrowseClient() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20">
-          <p className="font-mono text-gray-500 uppercase tracking-widest text-sm">// NO FILMS FOUND</p>
+          <p className="font-mono text-gray-500 uppercase tracking-widest text-sm">{'// NO FILMS FOUND'}</p>
           <p className="font-mono text-xs text-gray-700 mt-2">Try a different search or genre filter.</p>
         </div>
       ) : (

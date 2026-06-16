@@ -44,13 +44,21 @@ export async function POST(req: NextRequest) {
   }
 
   // Create Mux direct upload URL, passing the film DB id as passthrough
-  const upload = await mux.video.uploads.create({
-    new_asset_settings: {
-      playback_policy: ['signed'],
-      passthrough: film.id,
-    },
-    cors_origin: process.env.NEXT_PUBLIC_APP_URL ?? '*',
-  })
+  let upload
+  try {
+    upload = await mux.video.uploads.create({
+      new_asset_settings: {
+        playback_policy: ['signed'],
+        passthrough: film.id,
+      },
+      cors_origin: process.env.NEXT_PUBLIC_APP_URL ?? '*',
+    })
+  } catch (err) {
+    // Clean up the film record if Mux fails
+    await serviceClient.from('films').delete().eq('id', film.id)
+    const message = err instanceof Error ? err.message : 'Mux upload creation failed'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 
   return NextResponse.json({ uploadUrl: upload.url, filmId: film.id })
 }

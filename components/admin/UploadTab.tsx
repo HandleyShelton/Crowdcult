@@ -51,7 +51,14 @@ export default function UploadTab() {
           runtimeMinutes: parseInt(form.runtimeMinutes),
         }),
       })
-      const { uploadUrl, error: apiError } = await res.json()
+      let uploadUrl: string, apiError: string | undefined
+      try {
+        const data = await res.json()
+        uploadUrl = data.uploadUrl
+        apiError = data.error
+      } catch {
+        throw new Error(`Server error (${res.status}): ${await res.text().catch(() => 'no response body')}`)
+      }
       if (apiError) throw new Error(apiError)
 
       setMessage('Uploading video to Mux…')

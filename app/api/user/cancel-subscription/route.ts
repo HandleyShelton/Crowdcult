@@ -21,12 +21,12 @@ export async function POST() {
   try {
     const subscriptions = await stripe.subscriptions.list({
       customer: profile.stripe_customer_id,
-      status: 'active',
-      limit: 1,
+      status: 'all',
+      limit: 10,
     })
 
-    const sub = subscriptions.data[0]
-    if (sub) {
+    const cancellable = subscriptions.data.filter(s => s.status === 'active' || s.status === 'trialing')
+    for (const sub of cancellable) {
       await stripe.subscriptions.cancel(sub.id)
     }
   } catch (err) {

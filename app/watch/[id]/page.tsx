@@ -1,6 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { signPlaybackToken } from '@/lib/mux'
 import VideoPlayer from '@/components/VideoPlayer'
 import { formatRuntime } from '@/lib/utils'
 
@@ -45,12 +44,9 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
 
   if (!film) notFound()
 
-  let playbackToken = ''
-  try {
-    playbackToken = await signPlaybackToken(film.mux_playback_id)
-  } catch {
-    // Fall back to unsigned in dev when signing keys aren't configured
-  }
+  // All Mux assets use a public playback policy, so no signed token is needed.
+  // Passing a token to a public playback ID would actually break playback.
+  const playbackToken = ''
 
   const thumbnailSrc = film.thumbnail_url
     ?? (film.mux_playback_id

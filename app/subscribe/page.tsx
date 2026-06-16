@@ -52,8 +52,12 @@ export default function SubscribePage() {
 
     try {
       const res = await fetch('/api/create-checkout-session', { method: 'POST' })
-      const { url, error: apiError } = await res.json()
+      const { url, error: apiError, alreadySubscribed } = await res.json()
       if (apiError) throw new Error(apiError)
+      if (alreadySubscribed) {
+        router.replace('/browse')
+        return
+      }
       window.location.href = url
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')

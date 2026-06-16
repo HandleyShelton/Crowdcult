@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { stripe } from '@/lib/stripe'
 
 export async function POST(req: NextRequest) {
@@ -32,6 +32,18 @@ export async function POST(req: NextRequest) {
       .from('users')
       .update({ stripe_customer_id: customerId })
       .eq('id', user.id)
+  } else {
+    // Guard against double-billing: if this customer already has an active
+    // subscription, don't open a second checkout. Reconcile the DB instead.
+    const existing = await stripe.subscriptions.list({ customer: customerId, status: 'all', limit: 10 })
+    const hasActive = existing.data.some(s => s.status === 'active' || s.status === 'trialing')
+    if (hasActive) {
+      await createServiceClient()
+        .from('users')
+        .update({ is_subscribed: true })
+        .eq('id', user.id)
+      return NextResponse.json({ alreadySubscribed: true })
+    }
   }
 
   const session = await stripe.checkout.sessions.create({

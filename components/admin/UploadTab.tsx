@@ -51,10 +51,11 @@ export default function UploadTab() {
           runtimeMinutes: parseInt(form.runtimeMinutes),
         }),
       })
-      let uploadUrl: string, apiError: string | undefined
+      let uploadUrl: string, filmId: string | undefined, apiError: string | undefined
       try {
         const data = await res.json()
         uploadUrl = data.uploadUrl
+        filmId = data.filmId
         apiError = data.error
       } catch {
         throw new Error(`Server error (${res.status}): ${await res.text().catch(() => 'no response body')}`)
@@ -82,10 +83,11 @@ export default function UploadTab() {
       setMessage('Video uploaded! Mux is processing it (this may take a few minutes)…')
 
       // Step 3: upload poster if provided
-      if (posterFile) {
+      if (posterFile && filmId) {
         setMessage('Uploading poster image…')
         const posterForm = new FormData()
         posterForm.append('file', posterFile)
+        posterForm.append('filmId', filmId)
         await fetch('/api/admin/upload-poster', { method: 'POST', body: posterForm })
       }
 

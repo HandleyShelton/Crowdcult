@@ -1,0 +1,2 @@
+export const HARD_STOP_THRESHOLD = 90_000
+export const DELIVERY_LIMIT = 100_000

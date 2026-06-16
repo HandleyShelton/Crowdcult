@@ -3,9 +3,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { stripe } from '@/lib/stripe'
 import { isAdminEmail, currentMonth } from '@/lib/utils'
 import { mux } from '@/lib/mux'
-
-export const HARD_STOP_THRESHOLD = 90_000
-export const DELIVERY_LIMIT = 100_000
+import { HARD_STOP_THRESHOLD, DELIVERY_LIMIT } from '@/lib/limits'
 
 export async function GET() {
   const supabase = await createClient()

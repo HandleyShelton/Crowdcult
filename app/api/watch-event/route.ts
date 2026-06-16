@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { currentMonth } from '@/lib/utils'
-import { HARD_STOP_THRESHOLD } from '@/app/api/admin/usage/route'
+import { HARD_STOP_THRESHOLD } from '@/lib/limits'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()

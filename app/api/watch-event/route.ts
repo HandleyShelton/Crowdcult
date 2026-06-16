@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, createServiceClient } from '@/lib/supabase/server'
-import { currentMonth } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -15,8 +14,6 @@ export async function POST(req: NextRequest) {
   if (!filmId || typeof watchedSeconds !== 'number') {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
-
-  const serviceClient = createServiceClient()
 
   // Upsert watch event
   const { data: existing } = await supabase

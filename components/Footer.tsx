@@ -25,7 +25,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-white font-mono text-xs uppercase tracking-widest mb-4 border-b border-red-900 pb-2">// PLATFORM</h3>
+            <h3 className="text-white font-mono text-xs uppercase tracking-widest mb-4 border-b border-red-900 pb-2">{'// PLATFORM'}</h3>
             <div className="flex flex-col gap-2 text-xs font-mono text-gray-500">
               <FooterLink href="/browse">» Browse Films</FooterLink>
               <FooterLink href="/subscribe">» Subscribe</FooterLink>
@@ -34,7 +34,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-white font-mono text-xs uppercase tracking-widest mb-4 border-b border-red-900 pb-2">// FILMMAKERS</h3>
+            <h3 className="text-white font-mono text-xs uppercase tracking-widest mb-4 border-b border-red-900 pb-2">{'// FILMMAKERS'}</h3>
             <div className="flex flex-col gap-2 text-xs font-mono text-gray-500">
               <FooterLink href="/submit">» Submit Your Film</FooterLink>
               <FooterLink href="/about#revenue-share">» Revenue Share Model</FooterLink>

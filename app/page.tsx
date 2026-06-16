@@ -91,7 +91,7 @@ export default async function LandingPage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="flex items-baseline justify-between mb-8 border-b border-red-900 pb-3">
             <h2 className="font-display text-4xl tracking-wider text-white">
-              // FEATURED FILMS
+              {'// FEATURED FILMS'}
             </h2>
             {isSubscribed && (
               <Link href="/browse" className="font-mono text-xs text-accent hover:text-white uppercase tracking-widest transition-colors">
@@ -107,7 +107,7 @@ export default async function LandingPage() {
           {!isSubscribed && (
             <div className="text-center mt-10 border border-red-900 p-8 bg-surface">
               <p className="font-mono text-xs text-gray-500 uppercase tracking-widest mb-4">
-                // SUBSCRIBER ACCESS REQUIRED
+                {'// SUBSCRIBER ACCESS REQUIRED'}
               </p>
               <Link
                 href="/subscribe"
@@ -123,7 +123,7 @@ export default async function LandingPage() {
       {/* Pricing */}
       <section className="bg-surface py-20 border-t border-b border-red-900" id="pricing">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="font-display text-5xl tracking-wider mb-2 text-white">// SIMPLE PRICING</h2>
+          <h2 className="font-display text-5xl tracking-wider mb-2 text-white">{'// SIMPLE PRICING'}</h2>
           <p className="font-mono text-xs text-gray-500 uppercase tracking-widest mb-12">ONE PLAN · UNLIMITED FILMS · CANCEL ANYTIME</p>
           <div className="border border-red-900 p-8 max-w-sm mx-auto bg-black">
             <div className="font-display text-7xl text-accent mb-1">$4.99</div>
@@ -154,7 +154,7 @@ export default async function LandingPage() {
 
       {/* How It Works */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20" id="how-it-works">
-        <h2 className="font-display text-5xl tracking-wider text-center mb-2">// HOW IT WORKS</h2>
+        <h2 className="font-display text-5xl tracking-wider text-center mb-2">{'// HOW IT WORKS'}</h2>
         <div className="font-mono text-xs text-gray-600 text-center uppercase tracking-widest mb-14">
           ─────────────────────────────────
         </div>

@@ -7,11 +7,21 @@ export async function POST(req: NextRequest) {
   const body = await req.text()
   const sig = req.headers.get('stripe-signature')!
 
-  let event: Stripe.Event
-  try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
-  } catch (err) {
-    console.error('Stripe webhook signature error:', err)
+  // Two endpoints hit this handler: the platform endpoint (subscriptions) and
+  // the Connect endpoint (account.updated). Each has its own signing secret, so
+  // try both.
+  const secrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_CONNECT_WEBHOOK_SECRET].filter(Boolean) as string[]
+  let event: Stripe.Event | null = null
+  for (const secret of secrets) {
+    try {
+      event = stripe.webhooks.constructEvent(body, sig, secret)
+      break
+    } catch {
+      // try the next secret
+    }
+  }
+  if (!event) {
+    console.error('Stripe webhook signature error: no matching secret')
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 

@@ -107,8 +107,32 @@ CREATE POLICY "Anyone can read platform settings" ON public.platform_settings
 CREATE POLICY "No public access to payouts" ON public.filmmaker_payouts
   FOR ALL USING (false);
 
--- Film submissions (public filmmakers submit for review)
--- Run this migration in Supabase SQL editor:
--- CREATE TABLE public.film_submissions ( ... )
+-- Film submissions (public filmmakers submit films for review)
+CREATE TABLE public.film_submissions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  title TEXT NOT NULL,
+  director TEXT NOT NULL,
+  director_bio TEXT,
+  year INT,
+  runtime_minutes INT,
+  genre TEXT,
+  description TEXT NOT NULL,
+  festival_laurels TEXT,
+  film_link TEXT,
+  message TEXT,
+  status TEXT DEFAULT 'pending', -- 'pending' | 'approved' | 'rejected'
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.film_submissions ENABLE ROW LEVEL SECURITY;
+
+-- No direct public access. The public submit form and the admin review UI
+-- both go through API routes that use the service role, which bypasses RLS.
+-- With this deny policy (and RLS on), the anon/authenticated keys get nothing.
+CREATE POLICY "No public access to submissions" ON public.film_submissions
+  FOR ALL USING (false);
 
 -- Service role bypasses RLS for admin operations

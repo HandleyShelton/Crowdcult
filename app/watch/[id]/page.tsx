@@ -40,6 +40,7 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
     .select('*')
     .eq('id', id)
     .eq('status', 'ready')
+    .eq('is_active', true)
     .single()
 
   if (!film) notFound()

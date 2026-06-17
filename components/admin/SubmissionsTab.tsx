@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -17,6 +18,10 @@ interface Submission {
   festival_laurels: string | null
   film_link: string | null
   message: string | null
+  co_directors: string | null
+  content_warnings: string | null
+  poster_url: string | null
+  rejection_reason: string | null
   status: 'pending' | 'approved' | 'rejected'
   notes: string | null
   created_at: string
@@ -42,7 +47,7 @@ export default function SubmissionsTab() {
     const subs: Submission[] = json.submissions ?? []
     setSubmissions(subs)
     const initialNotes: Record<string, string> = {}
-    for (const s of subs) initialNotes[s.id] = s.notes ?? ''
+    for (const s of subs) initialNotes[s.id] = s.rejection_reason ?? s.notes ?? ''
     setNotes(initialNotes)
     setLoading(false)
   }
@@ -50,11 +55,19 @@ export default function SubmissionsTab() {
   useEffect(() => { load() }, [])
 
   async function updateStatus(id: string, status: 'approved' | 'rejected') {
+    if (status === 'rejected' && (!notes[id] || notes[id].trim().length < 3)) {
+      alert('Please enter a rejection reason — it will be emailed to the filmmaker.')
+      return
+    }
     setSaving(id)
     await fetch('/api/admin/submissions', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status, notes: notes[id] }),
+      body: JSON.stringify(
+        status === 'rejected'
+          ? { id, status, rejectionReason: notes[id] }
+          : { id, status, notes: notes[id] },
+      ),
     })
     await load()
     setSaving(null)
@@ -175,10 +188,32 @@ function SubmissionCard({
             <Info label="Submitted" value={new Date(sub.created_at).toLocaleDateString()} />
           </div>
 
+          {sub.co_directors && (
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Co-directors</p>
+              <p className="text-sm text-gray-300">{sub.co_directors}</p>
+            </div>
+          )}
+
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Synopsis</p>
             <p className="text-sm text-gray-300 leading-relaxed">{sub.description}</p>
           </div>
+
+          {sub.content_warnings && (
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Content warnings</p>
+              <p className="text-sm text-yellow">{sub.content_warnings}</p>
+            </div>
+          )}
+
+          {sub.poster_url && isSafeHttpUrl(sub.poster_url) && (
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Poster</p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={sub.poster_url} alt="poster" className="h-32 rounded border border-line" />
+            </div>
+          )}
 
           {sub.director_bio && (
             <div>
@@ -219,13 +254,22 @@ function SubmissionCard({
             </div>
           )}
 
+          {sub.status === 'rejected' && sub.rejection_reason && (
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Rejection reason (emailed)</p>
+              <p className="text-sm text-pink">{sub.rejection_reason}</p>
+            </div>
+          )}
+
           <div>
-            <label className="block text-xs text-gray-500 uppercase tracking-wider mb-1">Your notes</label>
+            <label className="block text-xs text-gray-500 uppercase tracking-wider mb-1">
+              Rejection reason / notes
+            </label>
             <textarea
               value={notes}
               onChange={e => onNotesChange(e.target.value)}
               rows={2}
-              placeholder="Internal notes…"
+              placeholder="Required if rejecting — this text is emailed to the filmmaker…"
               className="w-full bg-surface-2 border border-white/10 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-accent resize-none"
             />
           </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const GENRES = ['Drama', 'Documentary', 'Comedy', 'Thriller', 'Horror', 'Sci-Fi', 'Animation', 'Experimental', 'Romance', 'Action']
 
@@ -15,6 +15,13 @@ interface FormData {
   festivalLaurels: string
 }
 
+interface Filmmaker { id: string; name: string; email: string }
+interface ApprovedSub {
+  id: string; title: string; director: string; filmmaker_id: string | null
+  director_bio: string | null; year: number | null; runtime_minutes: number | null
+  genre: string | null; description: string; festival_laurels: string | null
+}
+
 export default function UploadTab() {
   const [form, setForm] = useState<FormData>({
     title: '', director: '', directorBio: '', year: new Date().getFullYear().toString(),
@@ -27,6 +34,33 @@ export default function UploadTab() {
   const [message, setMessage] = useState('')
   const videoInputRef = useRef<HTMLInputElement>(null)
   const posterInputRef = useRef<HTMLInputElement>(null)
+  const [filmmakers, setFilmmakers] = useState<Filmmaker[]>([])
+  const [approvedSubs, setApprovedSubs] = useState<ApprovedSub[]>([])
+  const [filmmakerId, setFilmmakerId] = useState('')
+  const [submissionId, setSubmissionId] = useState('')
+
+  useEffect(() => {
+    fetch('/api/admin/filmmakers').then(r => r.json()).then(d => setFilmmakers(d.filmmakers ?? []))
+    fetch('/api/admin/submissions?status=approved').then(r => r.json()).then(d => setApprovedSubs(d.submissions ?? []))
+  }, [])
+
+  // Selecting an approved submission prefills the form + links filmmaker/submission.
+  function pickSubmission(id: string) {
+    setSubmissionId(id)
+    const s = approvedSubs.find(x => x.id === id)
+    if (!s) return
+    setForm({
+      title: s.title ?? '',
+      director: s.director ?? '',
+      directorBio: s.director_bio ?? '',
+      year: s.year ? String(s.year) : new Date().getFullYear().toString(),
+      runtimeMinutes: s.runtime_minutes ? String(s.runtime_minutes) : '',
+      genre: s.genre ?? '',
+      description: s.description ?? '',
+      festivalLaurels: s.festival_laurels ?? '',
+    })
+    if (s.filmmaker_id) setFilmmakerId(s.filmmaker_id)
+  }
 
   function setField(key: keyof FormData, value: string) {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -49,6 +83,8 @@ export default function UploadTab() {
           ...form,
           year: parseInt(form.year),
           runtimeMinutes: parseInt(form.runtimeMinutes),
+          filmmakerId: filmmakerId || null,
+          submissionId: submissionId || null,
         }),
       })
       let uploadUrl: string, filmId: string | undefined, apiError: string | undefined
@@ -125,6 +161,26 @@ export default function UploadTab() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Filmmaker / submission linkage */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border border-line rounded-lg p-4 bg-surface">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1.5">Link to approved submission</label>
+            <select value={submissionId} onChange={e => pickSubmission(e.target.value)} className="input w-full">
+              <option value="">— none (manual entry) —</option>
+              {approvedSubs.map(s => <option key={s.id} value={s.id}>{s.title} — {s.director}</option>)}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">Prefills the fields below and tags the filmmaker.</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1.5">Filmmaker</label>
+            <select value={filmmakerId} onChange={e => setFilmmakerId(e.target.value)} className="input w-full">
+              <option value="">— unassigned —</option>
+              {filmmakers.map(f => <option key={f.id} value={f.id}>{f.name} ({f.email})</option>)}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">Required for this film to earn payouts.</p>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-300 mb-1.5">Title *</label>

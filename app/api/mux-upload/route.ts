@@ -19,9 +19,10 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { title, director, directorBio, year, runtimeMinutes, genre, description, festivalLaurels } = body
+  const { title, director, directorBio, year, runtimeMinutes, genre, description, festivalLaurels, filmmakerId, submissionId } = body
 
-  // Insert film record first to get the ID to pass as passthrough
+  // Insert film record first to get the ID to pass as passthrough.
+  // New films are inactive by default — admin activates them from the Films tab.
   const serviceClient = createServiceClient()
   const { data: film, error: dbError } = await serviceClient
     .from('films')
@@ -35,12 +36,20 @@ export async function POST(req: NextRequest) {
       description: description || null,
       festival_laurels: festivalLaurels || null,
       status: 'processing',
+      filmmaker_id: filmmakerId || null,
+      submission_id: submissionId || null,
+      is_active: false,
     })
     .select('id')
     .single()
 
   if (dbError || !film) {
     return NextResponse.json({ error: 'Failed to create film record' }, { status: 500 })
+  }
+
+  // Link the originating submission back to this film, if provided.
+  if (submissionId) {
+    await serviceClient.from('film_submissions').update({ film_id: film.id }).eq('id', submissionId)
   }
 
   // Create Mux direct upload URL, passing the film DB id as passthrough

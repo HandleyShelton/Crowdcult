@@ -33,6 +33,7 @@ export default function BrowseClient() {
         .from('films')
         .select('id, title, director, year, runtime_minutes, thumbnail_url, mux_playback_id, genre, festival_laurels')
         .eq('status', 'ready')
+        .eq('is_active', true)
         .order('created_at', { ascending: false })
 
       const list = data ?? []

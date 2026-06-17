@@ -22,3 +22,18 @@ export function isAdminEmail(email: string): boolean {
   const admins = (process.env.ADMIN_EMAIL ?? '').split(',').map(e => e.trim().toLowerCase())
   return admins.includes(email.toLowerCase())
 }
+
+// Only allow http(s) URLs — blocks javascript:, data:, etc. that could execute
+// in an admin's session when a submitted link is rendered as an anchor.
+export function isSafeHttpUrl(value: string): boolean {
+  try {
+    const u = new URL(value)
+    return u.protocol === 'http:' || u.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+export function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+}

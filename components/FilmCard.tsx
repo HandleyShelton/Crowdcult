@@ -34,6 +34,9 @@ export default function FilmCard({ film, locked = false, href }: FilmCardProps) 
           src={thumbnailSrc}
           alt={film.title}
           fill
+          // Mux/Supabase already serve CDN-optimized images — skip Vercel's
+          // image optimization to avoid billed transformations on every poster.
+          unoptimized
           className={`object-cover transition-transform duration-300 group-hover:scale-105 ${locked ? 'blur-md brightness-50' : ''}`}
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />

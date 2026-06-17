@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { stripe } from '@/lib/stripe'
+import { rateLimit } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -8,6 +9,10 @@ export async function POST(req: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+  }
+
+  if (!rateLimit(`checkout:${user.id}`, 8, 60 * 1000)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   }
 
   // Fall back to the request origin if the env var isn't set, so the

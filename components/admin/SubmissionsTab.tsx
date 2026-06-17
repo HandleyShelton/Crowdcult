@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { isSafeHttpUrl } from '@/lib/utils'
 
 interface Submission {
   id: string
@@ -196,14 +197,18 @@ function SubmissionCard({
           {sub.film_link && (
             <div>
               <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Film link</p>
-              <a
-                href={sub.film_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-accent hover:underline break-all"
-              >
-                {sub.film_link}
-              </a>
+              {isSafeHttpUrl(sub.film_link) ? (
+                <a
+                  href={sub.film_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-accent hover:underline break-all"
+                >
+                  {sub.film_link}
+                </a>
+              ) : (
+                <span className="text-sm text-gray-400 break-all">{sub.film_link} (unsafe link — not clickable)</span>
+              )}
             </div>
           )}
 

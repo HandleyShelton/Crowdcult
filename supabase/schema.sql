@@ -2,11 +2,18 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Users table (mirrors Supabase auth.users with extra fields)
+-- A user can be a viewer (is_subscribed) and/or a filmmaker (is_filmmaker).
 CREATE TABLE public.users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT NOT NULL,
   is_subscribed BOOLEAN DEFAULT FALSE,
   stripe_customer_id TEXT,
+  -- Filmmaker account fields
+  is_filmmaker BOOLEAN DEFAULT FALSE,
+  full_name TEXT,
+  contact_email TEXT,
+  stripe_connect_account_id TEXT,
+  connect_payouts_enabled BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -25,6 +32,10 @@ CREATE TABLE public.films (
   genre TEXT,
   festival_laurels TEXT,
   status TEXT DEFAULT 'processing', -- 'processing' | 'ready'
+  -- Filmmaker linkage + activation (films are hidden until is_active = true)
+  filmmaker_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
+  submission_id UUID, -- FK added after film_submissions exists (see migration)
+  is_active BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -90,9 +101,9 @@ CREATE POLICY "Users can view own profile" ON public.users
 CREATE POLICY "Users can update own profile" ON public.users
   FOR UPDATE USING (auth.uid() = id);
 
--- Films: anyone can read ready films (subscription check is app-level)
+-- Films: anyone can read ready AND active films (subscription check is app-level)
 CREATE POLICY "Anyone can view ready films" ON public.films
-  FOR SELECT USING (status = 'ready');
+  FOR SELECT USING (status = 'ready' AND is_active = TRUE);
 
 -- Watch events: users can read/write their own
 CREATE POLICY "Users can manage own watch events" ON public.watch_events
@@ -124,6 +135,13 @@ CREATE TABLE public.film_submissions (
   message TEXT,
   status TEXT DEFAULT 'pending', -- 'pending' | 'approved' | 'rejected'
   notes TEXT,
+  -- Filmmaker account linkage + extra review fields
+  filmmaker_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
+  co_directors TEXT,
+  content_warnings TEXT,
+  poster_url TEXT,
+  rejection_reason TEXT,
+  film_id UUID REFERENCES public.films(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

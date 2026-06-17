@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import FilmmakerPanel from '@/components/FilmmakerPanel'
 
 interface Profile {
   email: string
@@ -137,6 +138,9 @@ export default function SettingsPage() {
           </div>
         )}
       </section>
+
+      {/* Filmmaker */}
+      <FilmmakerPanel />
 
       {/* Danger zone */}
       <section className="border border-red-900/50 bg-background p-6">

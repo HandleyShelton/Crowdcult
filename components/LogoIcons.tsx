@@ -1,72 +1,93 @@
+/* eslint-disable @next/next/no-img-element */
 'use client'
 
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import type { ReactNode } from 'react'
 
-// Small built-in icon "database" — simple filled glyphs that read well at ~13px.
-// Add more entries here to expand the pool.
-const ICONS: ReactNode[] = [
-  <path key="star" d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.785 1.401 8.169L12 18.896l-7.335 3.868 1.401-8.169L.132 9.21l8.2-1.192z" />,
-  <path key="heart" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z" />,
-  <circle key="circle" cx="12" cy="12" r="9" />,
-  <rect key="square" x="4" y="4" width="16" height="16" rx="3" />,
-  <path key="play" d="M8 5v14l11-7z" />,
-  <path key="diamond" d="M12 2l10 10-10 10L2 12z" />,
-  <path key="plus" d="M11 3h2v8h8v2h-8v8h-2v-8H3v-2h8z" />,
-  <path key="bolt" d="M13 2L3 14h7v8l10-12h-7z" />,
-  <path key="moon" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />,
-  <path key="droplet" d="M12 2s7 7.16 7 12a7 7 0 11-14 0c0-4.84 7-12 7-12z" />,
-  <path key="eye" d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 110-8 4 4 0 010 8z" />,
-  <path key="sparkle" d="M11 2h2v6.6l4.6-4.6 1.4 1.4-4.6 4.6H21v2h-6.6l4.6 4.6-1.4 1.4-4.6-4.6V21h-2v-6.6l-4.6 4.6-1.4-1.4 4.6-4.6H3v-2h6.6L5 6.4 6.4 5 11 9.6z" />,
-  <path key="triangle" d="M12 3l10 17H2z" />,
-  <path key="hexagon" d="M12 2l8.66 5v10L12 22l-8.66-5V7z" />,
-]
+// Free Iconify public API (no key). Phosphor set ~1,200 icons.
+// Swap PREFIX for another set, e.g. 'tabler', 'lucide', 'mdi', 'ph-fill'.
+const PREFIX = 'ph'
 
 const SLOTS = [
-  { text: 'text-pink', dot: 'bg-pink/80' },
-  { text: 'text-yellow', dot: 'bg-yellow/80' },
-  { text: 'text-green', dot: 'bg-green/80' },
+  { color: '#f7768e' }, // pink
+  { color: '#e0af68' }, // yellow
+  { color: '#9ece6a' }, // green
 ]
 
-function pickDistinct(count: number, max: number): number[] {
-  const pool = Array.from({ length: max }, (_, i) => i)
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[pool[i], pool[j]] = [pool[j], pool[i]]
-  }
-  return pool.slice(0, count)
+// Inline fallback used only if the Iconify API can't be reached.
+const FALLBACK = [
+  'M12 .587l3.668 7.431 8.2 1.192-5.934 5.785 1.401 8.169L12 18.896l-7.335 3.868 1.401-8.169L.132 9.21l8.2-1.192z',
+  'M8 5v14l11-7z',
+  'M12 2l10 10-10 10L2 12z',
+  'M13 2L3 14h7v8l10-12h-7z',
+  'M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z',
+  'M12 2s7 7.16 7 12a7 7 0 11-14 0c0-4.84 7-12 7-12z',
+]
+
+// Module-level cache so the icon list is fetched once per session.
+let namePool: string[] | null = null
+let poolPromise: Promise<string[] | null> | null = null
+
+async function loadPool(): Promise<string[] | null> {
+  if (namePool) return namePool
+  if (poolPromise) return poolPromise
+  poolPromise = fetch(`https://api.iconify.design/collection?prefix=${PREFIX}`)
+    .then(r => (r.ok ? r.json() : Promise.reject(new Error('bad status'))))
+    .then((data: { uncategorized?: string[]; categories?: Record<string, string[]> }) => {
+      const names: string[] = []
+      if (Array.isArray(data.uncategorized)) names.push(...data.uncategorized)
+      if (data.categories) for (const arr of Object.values(data.categories)) names.push(...arr)
+      namePool = names
+      return names
+    })
+    .catch(() => null)
+  return poolPromise
 }
+
+function sample<T>(arr: T[], n: number): T[] {
+  const out: T[] = []
+  const used = new Set<number>()
+  while (out.length < n && used.size < arr.length) {
+    const i = Math.floor(Math.random() * arr.length)
+    if (!used.has(i)) { used.add(i); out.push(arr[i]) }
+  }
+  return out
+}
+
+type Picks = { kind: 'remote'; names: string[] } | { kind: 'local'; paths: string[] }
 
 export default function LogoIcons({ className = 'flex items-center gap-1.5' }: { className?: string }) {
   const pathname = usePathname()
-  const [picks, setPicks] = useState<number[] | null>(null)
+  const [picks, setPicks] = useState<Picks | null>(null)
 
-  // Re-randomize on first mount (refresh) and on every route change.
+  // Re-roll on first mount (refresh) and on every route change.
   useEffect(() => {
-    setPicks(pickDistinct(SLOTS.length, ICONS.length))
+    let active = true
+    loadPool().then(pool => {
+      if (!active) return
+      if (pool && pool.length) setPicks({ kind: 'remote', names: sample(pool, 3) })
+      else setPicks({ kind: 'local', paths: sample(FALLBACK, 3) })
+    })
+    return () => { active = false }
   }, [pathname])
 
   return (
     <span className={className}>
-      {SLOTS.map((slot, i) =>
-        picks ? (
-          <svg
-            key={i}
-            width="13"
-            height="13"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className={slot.text}
-            aria-hidden
-          >
-            {ICONS[picks[i]]}
+      {SLOTS.map((slot, i) => {
+        // SSR / pre-fetch placeholder — colored dots, avoids hydration mismatch.
+        if (!picks) {
+          return <span key={i} className="block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: slot.color, opacity: 0.8 }} />
+        }
+        if (picks.kind === 'remote') {
+          const url = `https://api.iconify.design/${PREFIX}/${picks.names[i]}.svg?color=${encodeURIComponent(slot.color)}&width=14&height=14`
+          return <img key={i} src={url} alt="" width={14} height={14} aria-hidden />
+        }
+        return (
+          <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill={slot.color} aria-hidden>
+            <path d={picks.paths[i]} />
           </svg>
-        ) : (
-          // SSR / pre-mount placeholder — matches the old dots, avoids hydration mismatch.
-          <span key={i} className={`block w-2.5 h-2.5 rounded-full ${slot.dot}`} />
         )
-      )}
+      })}
     </span>
   )
 }

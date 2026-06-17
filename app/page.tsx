@@ -101,8 +101,8 @@ function MarketingHome({ films, loggedIn }: { films: FilmRow[]; loggedIn: boolea
           </div>
 
           <h1 className="font-display text-[clamp(3rem,12vw,7rem)] leading-[0.95] text-ink mb-2">
-            media that<br />
-            <span className="text-accent">pays its makers</span>
+            a platform that<br />
+            <span className="text-accent">respects expression</span>
             <span className="cursor" aria-hidden />
           </h1>
 

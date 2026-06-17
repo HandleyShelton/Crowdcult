@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import LogoIcons from '@/components/LogoIcons'
 import type { User } from '@supabase/supabase-js'
 
 interface NavbarProps {
@@ -25,12 +26,7 @@ export default function Navbar({ user, isSubscribed, isAdmin }: NavbarProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
           <Link href="/" className="flex items-center gap-2.5 group">
-            {/* terminal dots */}
-            <span className="hidden sm:flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-pink/80" />
-              <span className="w-2.5 h-2.5 rounded-full bg-yellow/80" />
-              <span className="w-2.5 h-2.5 rounded-full bg-green/80" />
-            </span>
+            <LogoIcons className="hidden sm:flex items-center gap-1.5" />
             <span className="font-display text-2xl leading-none tracking-wide">
               <span className="text-accent">crowd</span><span className="text-ink">cult</span>
             </span>

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Marquee from '@/components/Marquee'
+import LogoIcons from '@/components/LogoIcons'
 
 export default function Footer() {
   return (
@@ -15,11 +16,7 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-pink/80" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-yellow/80" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-green/80" />
-                </span>
+                <LogoIcons />
                 <span className="font-display text-2xl tracking-wide">
                   <span className="text-accent">crowd</span><span className="text-ink">cult</span>
                 </span>

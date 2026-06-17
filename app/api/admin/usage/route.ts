@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
-import { stripe } from '@/lib/stripe'
 import { isAdminEmail, currentMonth } from '@/lib/utils'
 import { mux } from '@/lib/mux'
 import { HARD_STOP_THRESHOLD, DELIVERY_LIMIT } from '@/lib/limits'
+import { getMonthlyRevenue } from '@/lib/revenue'
 
 export async function GET() {
   const supabase = await createClient()
@@ -53,21 +53,8 @@ export async function GET() {
     .upsert({ key: 'hard_stop_enabled', value: shouldHardStop.toString() }, { onConflict: 'key' })
 
   // Stripe revenue
-  let monthlyRevenueCents = 0
-  try {
-    const charges = await stripe.charges.list({
-      created: {
-        gte: Math.floor(new Date(y, m - 1, 1).getTime() / 1000),
-        lt: Math.floor(new Date(y, m, 1).getTime() / 1000),
-      },
-      limit: 100,
-    })
-    monthlyRevenueCents = charges.data
-      .filter(c => c.paid && !c.refunded)
-      .reduce((s, c) => s + c.amount, 0)
-  } catch {
-    // Stripe unavailable in dev
-  }
+  // Accurate net subscription revenue from paid invoices (not raw charges).
+  const { netCents: monthlyRevenueCents } = await getMonthlyRevenue(y, m)
 
   const estimatedMuxCostCents = Math.round(deliveryMinutes * 0.0088 * 100)
 

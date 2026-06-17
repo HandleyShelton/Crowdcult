@@ -3,6 +3,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { stripe } from '@/lib/stripe'
 import { isAdminEmail, currentMonth } from '@/lib/utils'
 import { sendEmail, payoutSentEmail } from '@/lib/email'
+import { getMonthlyRevenue } from '@/lib/revenue'
 
 export async function GET() {
   const supabase = await createClient()
@@ -34,20 +35,8 @@ export async function GET() {
     totalSeconds += row.watched_seconds
   }
 
-  // Get Stripe revenue
-  let monthlyRevenueCents = 0
-  try {
-    const charges = await stripe.charges.list({
-      created: {
-        gte: Math.floor(new Date(y, m - 1, 1).getTime() / 1000),
-        lt: Math.floor(new Date(y, m, 1).getTime() / 1000),
-      },
-      limit: 100,
-    })
-    monthlyRevenueCents = charges.data
-      .filter(c => c.paid && !c.refunded)
-      .reduce((s, c) => s + c.amount, 0)
-  } catch {}
+  // Accurate net subscription revenue from paid invoices (not raw charges).
+  const { netCents: monthlyRevenueCents } = await getMonthlyRevenue(y, m)
 
   const filmPool = (monthlyRevenueCents / 100) * 0.5
 
@@ -148,16 +137,8 @@ export async function POST(req: NextRequest) {
     totalSeconds += w.watched_seconds
   }
 
-  let revenueCents = 0
-  try {
-    const charges = await stripe.charges.list({
-      created: { gte: Math.floor(new Date(y, m - 1, 1).getTime() / 1000), lt: Math.floor(new Date(y, m, 1).getTime() / 1000) },
-      limit: 100,
-    })
-    revenueCents = charges.data.filter(c => c.paid && !c.refunded).reduce((s, c) => s + c.amount, 0)
-  } catch {
-    // Stripe unavailable — pool is 0.
-  }
+  // Accurate net subscription revenue from paid invoices (not raw charges).
+  const { netCents: revenueCents } = await getMonthlyRevenue(y, m)
   const filmPoolCents = Math.floor(revenueCents * 0.5)
 
   const filmIds = Object.keys(perFilm)

@@ -17,6 +17,8 @@ export default function PayoutsTab() {
   const [loading, setLoading] = useState(true)
   const [month, setMonth] = useState('')
   const [totalRevenue, setTotalRevenue] = useState(0)
+  const [running, setRunning] = useState(false)
+  const [runResults, setRunResults] = useState<{ filmmaker: string; amountUsd: number; status: string; error?: string }[] | null>(null)
 
   async function loadPayouts() {
     setLoading(true)
@@ -30,26 +32,24 @@ export default function PayoutsTab() {
 
   useEffect(() => { loadPayouts() }, [])
 
-  function exportCSV() {
-    const headers = ['Film', 'Director', 'Watch Seconds', 'Watch %', 'Payout ($)', 'Paid']
-    const csvRows = [
-      headers.join(','),
-      ...rows.map(r => [
-        `"${r.title}"`,
-        `"${r.director}"`,
-        r.watchSeconds,
-        r.watchPct.toFixed(2),
-        r.payoutAmount.toFixed(2),
-        r.paid ? 'Yes' : 'No',
-      ].join(',')),
-    ]
-    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `crowdcult-payouts-${month}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+  async function runPayouts() {
+    if (!confirm(`Run payouts for ${month}? This sends real Stripe Connect transfers to all connected filmmakers based on this month's watch time.`)) return
+    setRunning(true)
+    setRunResults(null)
+    try {
+      const res = await fetch('/api/admin/payouts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ month }),
+      })
+      const json = await res.json()
+      setRunResults(json.results ?? [])
+      await loadPayouts()
+    } catch {
+      setRunResults([{ filmmaker: '—', amountUsd: 0, status: 'error', error: 'request failed' }])
+    } finally {
+      setRunning(false)
+    }
   }
 
   async function togglePaid(filmId: string, currentPaid: boolean) {
@@ -84,15 +84,43 @@ export default function PayoutsTab() {
           </p>
         </div>
         <button
-          onClick={exportCSV}
-          className="bg-surface-2 border border-white/10 hover:border-white/30 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+          onClick={runPayouts}
+          disabled={running}
+          className="bg-accent hover:bg-accent-hover disabled:opacity-50 text-background px-5 py-2.5 rounded-lg text-sm font-bold transition-colors"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-          Export CSV
+          {running ? 'Running payouts…' : 'Run Monthly Payouts'}
         </button>
       </div>
+
+      {runResults && (
+        <div className="border border-line rounded-lg bg-surface p-4 mb-6">
+          <p className="text-sm font-semibold text-ink mb-2">Payout run results</p>
+          {runResults.length === 0 ? (
+            <p className="text-sm text-muted">No filmmaker films with watch time this month.</p>
+          ) : (
+            <div className="space-y-1.5">
+              {runResults.map((r, i) => (
+                <div key={i} className="flex items-center justify-between text-sm font-mono">
+                  <span className="text-ink">{r.filmmaker}</span>
+                  <div className="flex items-center gap-4">
+                    <span className="text-muted">${r.amountUsd.toFixed(2)}</span>
+                    <span className={
+                      r.status === 'paid' ? 'text-green' :
+                      r.status.startsWith('not connected') ? 'text-yellow' :
+                      r.status === 'error' ? 'text-pink' : 'text-muted'
+                    }>
+                      {r.status}{r.error ? ` (${r.error})` : ''}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <p className="text-xs text-muted mt-3">
+            Filmmakers flagged <span className="text-yellow">not connected</span> are logged as pending — re-run after they connect a bank account, or use the checkboxes below to mark a payout settled manually.
+          </p>
+        </div>
+      )}
 
       {rows.length === 0 ? (
         <p className="text-gray-400">No watch data for this month yet.</p>

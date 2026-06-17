@@ -58,6 +58,15 @@ export async function POST(req: NextRequest) {
       if (invoice.customer) await syncSubscriptionStatus(invoice.customer as string)
       break
     }
+    case 'account.updated': {
+      // Connect onboarding progress — flip the filmmaker's payout readiness.
+      const account = event.data.object as Stripe.Account
+      await supabase
+        .from('users')
+        .update({ connect_payouts_enabled: !!account.payouts_enabled })
+        .eq('stripe_connect_account_id', account.id)
+      break
+    }
   }
 
   return NextResponse.json({ received: true })

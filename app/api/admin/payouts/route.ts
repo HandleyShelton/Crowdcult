@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { stripe } from '@/lib/stripe'
 import { isAdminEmail, currentMonth } from '@/lib/utils'
+import { sendEmail, payoutSentEmail } from '@/lib/email'
 
 export async function GET() {
   const supabase = await createClient()
@@ -111,4 +112,109 @@ export async function PATCH(req: NextRequest) {
     .select()
 
   return NextResponse.json({ ok: true })
+}
+
+// Run Monthly Payouts: compute each filmmaker's share of 50% of net revenue by
+// watch-time proportion, transfer via Stripe Connect, flag unconnected, log to
+// filmmaker_payouts, and email a breakdown. Idempotent-ish: re-running recomputes
+// amounts; already-paid rows still attempt transfer only for connected makers.
+export async function POST(req: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { data: profile } = await supabase.from('users').select('email').eq('id', user.id).single()
+  if (!profile || !isAdminEmail(profile.email)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  const body = await req.json().catch(() => ({}))
+  const month = typeof body.month === 'string' && body.month ? body.month : currentMonth()
+  const [y, m] = month.split('-').map(Number)
+  const monthStart = new Date(y, m - 1, 1).toISOString()
+  const monthEnd = new Date(y, m, 1).toISOString()
+
+  const serviceClient = createServiceClient()
+
+  const { data: watchData } = await serviceClient
+    .from('watch_events')
+    .select('film_id, watched_seconds')
+    .gte('created_at', monthStart)
+    .lt('created_at', monthEnd)
+
+  const perFilm: Record<string, number> = {}
+  let totalSeconds = 0
+  for (const w of watchData ?? []) {
+    perFilm[w.film_id] = (perFilm[w.film_id] ?? 0) + w.watched_seconds
+    totalSeconds += w.watched_seconds
+  }
+
+  let revenueCents = 0
+  try {
+    const charges = await stripe.charges.list({
+      created: { gte: Math.floor(new Date(y, m - 1, 1).getTime() / 1000), lt: Math.floor(new Date(y, m, 1).getTime() / 1000) },
+      limit: 100,
+    })
+    revenueCents = charges.data.filter(c => c.paid && !c.refunded).reduce((s, c) => s + c.amount, 0)
+  } catch {
+    // Stripe unavailable — pool is 0.
+  }
+  const filmPoolCents = Math.floor(revenueCents * 0.5)
+
+  const filmIds = Object.keys(perFilm)
+  const films = filmIds.length
+    ? (await serviceClient.from('films').select('id, title, filmmaker_id').in('id', filmIds)).data ?? []
+    : []
+
+  type Entry = { films: { id: string; title: string; secs: number; amountCents: number }[]; totalCents: number }
+  const byMaker = new Map<string, Entry>()
+  for (const f of films) {
+    if (!f.filmmaker_id) continue
+    const secs = perFilm[f.id] ?? 0
+    const amountCents = totalSeconds > 0 ? Math.round(filmPoolCents * (secs / totalSeconds)) : 0
+    await serviceClient.from('filmmaker_payouts').upsert(
+      { film_id: f.id, month, total_watch_seconds: secs, payout_amount: amountCents / 100 },
+      { onConflict: 'film_id,month' },
+    )
+    const e = byMaker.get(f.filmmaker_id) ?? { films: [], totalCents: 0 }
+    e.films.push({ id: f.id, title: f.title, secs, amountCents })
+    e.totalCents += amountCents
+    byMaker.set(f.filmmaker_id, e)
+  }
+
+  const results: { filmmaker: string; amountUsd: number; status: string; error?: string }[] = []
+  for (const [makerId, entry] of byMaker) {
+    const { data: maker } = await serviceClient
+      .from('users')
+      .select('full_name, contact_email, email, stripe_connect_account_id, connect_payouts_enabled')
+      .eq('id', makerId)
+      .single()
+    const name = maker?.full_name || maker?.email || 'unknown'
+    const amountUsd = entry.totalCents / 100
+
+    if (entry.totalCents <= 0) { results.push({ filmmaker: name, amountUsd: 0, status: 'skipped (no earnings)' }); continue }
+    if (!maker?.connect_payouts_enabled || !maker.stripe_connect_account_id) {
+      results.push({ filmmaker: name, amountUsd, status: 'not connected — payout pending' })
+      continue
+    }
+    try {
+      await stripe.transfers.create({
+        amount: entry.totalCents,
+        currency: 'usd',
+        destination: maker.stripe_connect_account_id,
+        description: `Crowdcult payout ${month}`,
+        metadata: { month, filmmaker_id: makerId },
+      })
+      await serviceClient.from('filmmaker_payouts').update({ paid: true }).in('film_id', entry.films.map(f => f.id)).eq('month', month)
+      const to = maker.contact_email || maker.email
+      if (to) {
+        const rows = entry.films.map(f => ({ title: f.title, watchMinutes: Math.floor(f.secs / 60), amountUsd: f.amountCents / 100 }))
+        await sendEmail({ to, ...payoutSentEmail(maker.full_name || 'there', month, amountUsd, rows) })
+      }
+      results.push({ filmmaker: name, amountUsd, status: 'paid' })
+    } catch (err) {
+      results.push({ filmmaker: name, amountUsd, status: 'error', error: err instanceof Error ? err.message : 'transfer failed' })
+    }
+  }
+
+  return NextResponse.json({ month, revenueCents, filmPoolCents, results })
 }

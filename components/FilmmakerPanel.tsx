@@ -12,10 +12,13 @@ interface FilmItem {
   estPayoutUsd: number
 }
 
+interface PayoutHistory { month: string; amountUsd: number; paid: boolean }
+
 interface FilmmakerData {
   isFilmmaker: boolean
   profile?: { fullName: string; contactEmail: string; stripeConnected: boolean; payoutsEnabled: boolean }
   films?: FilmItem[]
+  payoutHistory?: PayoutHistory[]
   month?: string
 }
 
@@ -39,6 +42,7 @@ export default function FilmmakerPanel() {
   const [contactEmail, setContactEmail] = useState('')
   const [saving, setSaving] = useState(false)
   const [savedMsg, setSavedMsg] = useState('')
+  const [connecting, setConnecting] = useState(false)
 
   async function load() {
     const res = await fetch('/api/filmmaker/me')
@@ -67,6 +71,18 @@ export default function FilmmakerPanel() {
       setSavedMsg(err instanceof Error ? err.message : 'error')
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function startConnect() {
+    setConnecting(true)
+    try {
+      const res = await fetch('/api/filmmaker/connect', { method: 'POST' })
+      const json = await res.json()
+      if (json.url) { window.location.href = json.url; return }
+      throw new Error(json.error)
+    } catch {
+      setConnecting(false)
     }
   }
 
@@ -141,6 +157,49 @@ export default function FilmmakerPanel() {
           </div>
         ) : (
           <p className="font-mono text-xs text-muted">no submissions yet. <a href="/submit" className="text-accent hover:text-ink">submit a film →</a></p>
+        )}
+      </div>
+
+      {/* Payouts / Stripe Connect */}
+      <div className="border-t border-line pt-4">
+        <h3 className="font-mono text-[10px] text-muted uppercase tracking-widest mb-3">payouts</h3>
+        {data.profile?.payoutsEnabled ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 font-mono text-xs text-green">
+              <span className="w-2 h-2 rounded-full bg-green" /> bank account connected — ready for payouts
+            </div>
+            {data.payoutHistory && data.payoutHistory.length > 0 ? (
+              <div className="border border-line rounded-md overflow-hidden">
+                {data.payoutHistory.map(p => (
+                  <div key={p.month} className="flex items-center justify-between px-3 py-2 border-b border-line last:border-0 font-mono text-xs">
+                    <span className="text-muted">{p.month}</span>
+                    <span className="text-ink">${p.amountUsd.toFixed(2)}</span>
+                    <span className={p.paid ? 'text-green' : 'text-yellow'}>{p.paid ? 'paid' : 'pending'}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="font-mono text-[11px] text-muted">no payouts yet. earnings appear here after the monthly run.</p>
+            )}
+          </div>
+        ) : data.profile?.stripeConnected ? (
+          <div className="space-y-3">
+            <p className="font-mono text-xs text-yellow">onboarding incomplete — finish setup to receive payouts.</p>
+            <button onClick={startConnect} disabled={connecting}
+              className="bg-accent hover:bg-accent-hover text-background font-mono text-xs uppercase tracking-widest px-5 py-2.5 rounded-md font-bold transition-colors disabled:opacity-50">
+              {connecting ? 'redirecting_' : 'finish bank setup →'}
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p className="font-mono text-xs text-muted leading-relaxed">
+              connect a bank account via stripe to receive your monthly payouts (50% of revenue, split by watch time).
+            </p>
+            <button onClick={startConnect} disabled={connecting}
+              className="bg-accent hover:bg-accent-hover text-background font-mono text-xs uppercase tracking-widest px-5 py-2.5 rounded-md font-bold transition-colors disabled:opacity-50">
+              {connecting ? 'redirecting_' : 'connect bank account →'}
+            </button>
+          </div>
         )}
       </div>
     </section>

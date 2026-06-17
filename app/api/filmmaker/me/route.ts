@@ -75,6 +75,26 @@ export async function GET() {
     }
   })
 
+  // Payout history (grouped by month) across all films this filmmaker owns.
+  const { data: ownedFilms } = await serviceClient.from('films').select('id').eq('filmmaker_id', user.id)
+  const ownedIds = (ownedFilms ?? []).map(f => f.id)
+  let payoutHistory: { month: string; amountUsd: number; paid: boolean }[] = []
+  if (ownedIds.length) {
+    const { data: payouts } = await serviceClient
+      .from('filmmaker_payouts')
+      .select('month, payout_amount, paid')
+      .in('film_id', ownedIds)
+      .order('month', { ascending: false })
+    const byMonth = new Map<string, { month: string; amountUsd: number; paid: boolean }>()
+    for (const p of payouts ?? []) {
+      const e = byMonth.get(p.month) ?? { month: p.month, amountUsd: 0, paid: true }
+      e.amountUsd += Number(p.payout_amount ?? 0)
+      e.paid = e.paid && !!p.paid
+      byMonth.set(p.month, e)
+    }
+    payoutHistory = [...byMonth.values()]
+  }
+
   return NextResponse.json({
     isFilmmaker: true,
     profile: {
@@ -84,6 +104,7 @@ export async function GET() {
       payoutsEnabled: !!profile.connect_payouts_enabled,
     },
     films: items,
+    payoutHistory,
     month,
   })
 }

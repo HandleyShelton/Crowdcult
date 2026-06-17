@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
   title: 'Crowdcult — Independent Media',
-  description: 'Independent media. Real filmmakers. 50% goes back to the artists.',
+  description: 'Join the cult — support independent media. 50% of every subscription goes back to the filmmakers.',
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

@@ -106,9 +106,13 @@ function MarketingHome({ films, loggedIn }: { films: FilmRow[]; loggedIn: boolea
             <span className="cursor" aria-hidden />
           </h1>
 
-          <p className="font-mono text-sm sm:text-base text-muted max-w-xl mx-auto mt-6 mb-10 leading-relaxed">
-            <span className="text-green">$</span> 50% of every subscription goes back to the filmmakers.
-            watch films that matter — support the people who made them.
+          <p className="font-mono text-base sm:text-lg text-ink max-w-xl mx-auto mt-6 lowercase tracking-wide">
+            join the cult <span className="text-accent">—</span> support independent media
+          </p>
+
+          <p className="font-mono text-xs sm:text-sm text-muted max-w-xl mx-auto mt-3 mb-10 leading-relaxed">
+            <span className="text-green">$</span> 50% of every subscription goes straight back to the
+            filmmakers. watch films that matter.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center font-mono">

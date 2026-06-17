@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <footer className="mt-16">
       <Marquee
-        items={['crowdcult', 'independent cinema', '50% to filmmakers', 'real films', 'real people', 'no algorithms']}
+        items={['crowdcult', 'independent media', '50% to filmmakers', 'real films', 'real people', 'no algorithms']}
         color="text-accent"
         speed={32}
       />
@@ -25,7 +25,7 @@ export default function Footer() {
                 </span>
               </div>
               <p className="text-muted text-xs leading-relaxed font-mono">
-                independent cinema for people who believe storytelling matters.
+                independent media for people who believe storytelling matters.
                 50% of every subscription goes directly to the filmmakers.
               </p>
             </div>
@@ -44,14 +44,14 @@ export default function Footer() {
               <div className="flex flex-col gap-2 text-xs font-mono text-muted">
                 <FooterLink href="/submit">submit your film</FooterLink>
                 <FooterLink href="/about#revenue-share">revenue share model</FooterLink>
-                <a href="mailto:hello@crowdcult.com" className="hover:text-ink transition-colors">contact us</a>
+                <a href="mailto:CrowdCult@proton.me" className="hover:text-ink transition-colors">contact us</a>
               </div>
             </div>
           </div>
 
           <div className="border-t border-line mt-8 pt-6 text-xs font-mono text-muted/70 flex flex-col sm:flex-row justify-between gap-2 lowercase tracking-wide">
             <span>© {new Date().getFullYear()} crowdcult. all rights reserved.</span>
-            <span className="text-accent/60">built for independent cinema<span className="cursor" aria-hidden /></span>
+            <span className="text-accent/60">built for independent media<span className="cursor" aria-hidden /></span>
           </div>
         </div>
       </div>

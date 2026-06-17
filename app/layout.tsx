@@ -5,8 +5,8 @@ import Footer from '@/components/Footer'
 import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
-  title: 'Crowdcult — Independent Cinema',
-  description: 'Independent cinema. Real filmmakers. 50% goes back to the artists.',
+  title: 'Crowdcult — Independent Media',
+  description: 'Independent media. Real filmmakers. 50% goes back to the artists.',
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

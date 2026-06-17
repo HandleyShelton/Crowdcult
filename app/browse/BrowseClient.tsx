@@ -58,7 +58,7 @@ export default function BrowseClient() {
   return (
     <div>
       <Marquee
-        items={['browse the catalog', 'independent cinema', 'support the makers', 'new films weekly', 'no algorithms']}
+        items={['browse the catalog', 'independent media', 'support the makers', 'new films weekly', 'no algorithms']}
         color="text-accent"
       />
 

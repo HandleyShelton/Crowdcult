@@ -9,8 +9,8 @@ export default function MaintenancePage() {
         </p>
         <p className="font-mono text-xs text-gray-600 mt-4">
           Questions?{' '}
-          <a href="mailto:hello@crowdcult.com" className="text-accent hover:text-ink transition-colors">
-            hello@crowdcult.com
+          <a href="mailto:CrowdCult@proton.me" className="text-accent hover:text-ink transition-colors">
+            CrowdCult@proton.me
           </a>
         </p>
       </div>

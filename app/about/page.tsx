@@ -48,9 +48,8 @@ export default function AboutPage() {
         <section>
           <h2 className="font-display text-3xl tracking-wider text-ink mb-4">CONTACT</h2>
           <div className="space-y-2 text-xs">
-            <p>» General: <a href="mailto:hello@crowdcult.com" className="text-accent hover:text-ink transition-colors">hello@crowdcult.com</a></p>
-            <p>» Submissions: <a href="mailto:films@crowdcult.com" className="text-accent hover:text-ink transition-colors">films@crowdcult.com</a></p>
-            <p>» Filmmaker support: <a href="mailto:filmmakers@crowdcult.com" className="text-accent hover:text-ink transition-colors">filmmakers@crowdcult.com</a></p>
+            <p>General inquiries, submissions, and filmmaker support:</p>
+            <p>» <a href="mailto:CrowdCult@proton.me" className="text-accent hover:text-ink transition-colors">CrowdCult@proton.me</a></p>
           </div>
         </section>
       </div>

@@ -38,7 +38,7 @@ function MemberHome({ films }: { films: FilmRow[] }) {
   return (
     <div>
       <Marquee
-        items={['welcome back', 'now streaming', 'independent cinema', 'support the makers', 'new films weekly']}
+        items={['welcome back', 'now streaming', 'independent media', 'support the makers', 'new films weekly']}
         color="text-accent"
       />
 
@@ -79,7 +79,7 @@ function MarketingHome({ films, loggedIn }: { films: FilmRow[]; loggedIn: boolea
   return (
     <div>
       <Marquee
-        items={['independent cinema', '50% to filmmakers', 'no algorithms', 'real films', 'real people', '$4.99 / month']}
+        items={['independent media', '50% to filmmakers', 'no algorithms', 'real films', 'real people', '$4.99 / month']}
         color="text-accent"
       />
 
@@ -97,11 +97,11 @@ function MarketingHome({ films, loggedIn }: { films: FilmRow[]; loggedIn: boolea
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 border border-line bg-surface/60 text-accent font-mono text-xs px-4 py-1.5 mb-8 rounded-full lowercase tracking-widest">
             <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
-            independent cinema platform
+            independent media platform
           </div>
 
           <h1 className="font-display text-[clamp(3rem,12vw,7rem)] leading-[0.95] text-ink mb-2">
-            cinema that<br />
+            media that<br />
             <span className="text-accent">pays its makers</span>
             <span className="cursor" aria-hidden />
           </h1>
@@ -208,7 +208,7 @@ function MarketingHome({ films, loggedIn }: { films: FilmRow[]; loggedIn: boolea
       </section>
 
       <Marquee
-        items={['crowdcult', 'independent cinema', 'made with care', 'for the love of film']}
+        items={['crowdcult', 'independent media', 'made with care', 'for the love of film']}
         color="text-accent"
       />
     </div>

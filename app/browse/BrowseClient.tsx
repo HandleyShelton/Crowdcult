@@ -64,7 +64,7 @@ export default function BrowseClient() {
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-baseline justify-between mb-8">
-          <h1 className="font-display text-4xl sm:text-5xl text-ink">
+          <h1 className="font-display text-4xl sm:text-5xl text-ink tracking-[0.08em]">
             <span className="text-muted">~/</span>browse<span className="cursor" aria-hidden />
           </h1>
           {!loading && (

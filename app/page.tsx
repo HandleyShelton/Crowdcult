@@ -44,7 +44,7 @@ function MemberHome({ films }: { films: FilmRow[] }) {
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-baseline justify-between mb-8">
-          <h1 className="font-display text-4xl sm:text-5xl text-ink">
+          <h1 className="font-display text-4xl sm:text-5xl text-ink tracking-[0.08em]">
             <span className="text-muted">~/</span>films<span className="cursor" aria-hidden />
           </h1>
           <Link href="/browse" className="font-mono text-xs text-accent hover:text-ink lowercase tracking-widest transition-colors">
@@ -135,7 +135,7 @@ function MarketingHome({ films, loggedIn }: { films: FilmRow[]; loggedIn: boolea
       {/* Featured films (locked) */}
       {films.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <h2 className="font-display text-3xl sm:text-4xl text-ink mb-8">
+          <h2 className="font-display text-3xl sm:text-4xl text-ink mb-8 tracking-[0.08em]">
             <span className="text-muted">~/</span>featured
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">

@@ -21,20 +21,29 @@ export async function GET() {
     return NextResponse.json({ isFilmmaker: false })
   }
 
+  // Submissions owned by this filmmaker.
   const { data: subs } = await serviceClient
     .from('film_submissions')
     .select('id, title, status, rejection_reason, film_id, created_at')
     .eq('filmmaker_id', user.id)
     .order('created_at', { ascending: false })
 
-  const filmIds = (subs ?? []).map(s => s.film_id).filter(Boolean) as string[]
+  // Films owned by this filmmaker — includes ones assigned directly (no submission).
+  const { data: ownedFilms } = await serviceClient
+    .from('films')
+    .select('id, title, is_active')
+    .eq('filmmaker_id', user.id)
+  const ownedIds = (ownedFilms ?? []).map(f => f.id)
 
-  const films = filmIds.length
-    ? (await serviceClient.from('films').select('id, is_active, mux_playback_id').in('id', filmIds)).data ?? []
+  // Resolve is_active for any films linked from submissions or owned directly.
+  const subFilmIds = (subs ?? []).map(s => s.film_id).filter(Boolean) as string[]
+  const linkFilmIds = [...new Set([...subFilmIds, ...ownedIds])]
+  const linkedFilms = linkFilmIds.length
+    ? (await serviceClient.from('films').select('id, is_active').in('id', linkFilmIds)).data ?? []
     : []
-  const filmMap = new Map(films.map(f => [f.id, f]))
+  const filmMap = new Map(linkedFilms.map(f => [f.id, f]))
 
-  // Watch totals this month for the filmmaker's linked films.
+  // Watch totals this month (across all films, for the pro-rata denominator).
   const month = currentMonth()
   const [y, m] = month.split('-').map(Number)
   const monthStart = new Date(y, m - 1, 1).toISOString()
@@ -42,11 +51,10 @@ export async function GET() {
 
   const watchByFilm = new Map<string, number>()
   let totalSeconds = 0
-  // Detailed revenue + payout math lives in the admin payouts route; the
-  // filmmaker view shows watch time now, and the payout estimate fills in
-  // once that pool is computed (Phase 3).
+  // Payout estimate denominator only; the actual pool is computed in the admin
+  // payouts route. Watch time is shown here regardless.
   const filmPoolUsd = 0
-  if (filmIds.length) {
+  {
     const { data: watch } = await serviceClient
       .from('watch_events')
       .select('film_id, watched_seconds')
@@ -58,26 +66,33 @@ export async function GET() {
     }
   }
 
-  const items = (subs ?? []).map(s => {
+  const estimate = (filmId: string | null) => {
+    const watchSeconds = filmId ? (watchByFilm.get(filmId) ?? 0) : 0
+    const estPayoutUsd = totalSeconds > 0 ? filmPoolUsd * (watchSeconds / totalSeconds) : 0
+    return { watchSeconds, estPayoutUsd }
+  }
+
+  type Item = { id: string; title: string; status: string; rejectionReason: string | null; filmId: string | null; watchSeconds: number; estPayoutUsd: number }
+  const items: Item[] = []
+  const shownFilmIds = new Set<string>()
+
+  for (const s of subs ?? []) {
     const film = s.film_id ? filmMap.get(s.film_id) : null
     let derived: string = s.status // pending | approved | rejected
     if (film) derived = film.is_active ? 'active' : 'inactive'
-    const watchSeconds = s.film_id ? (watchByFilm.get(s.film_id) ?? 0) : 0
-    const estPayoutUsd = totalSeconds > 0 ? filmPoolUsd * (watchSeconds / totalSeconds) : 0
-    return {
-      id: s.id,
-      title: s.title,
-      status: derived,
-      rejectionReason: s.rejection_reason ?? null,
-      filmId: s.film_id ?? null,
-      watchSeconds,
-      estPayoutUsd,
-    }
-  })
+    if (s.film_id) shownFilmIds.add(s.film_id)
+    const { watchSeconds, estPayoutUsd } = estimate(s.film_id ?? null)
+    items.push({ id: s.id, title: s.title, status: derived, rejectionReason: s.rejection_reason ?? null, filmId: s.film_id ?? null, watchSeconds, estPayoutUsd })
+  }
+
+  // Directly-assigned films not already represented by a submission above.
+  for (const f of ownedFilms ?? []) {
+    if (shownFilmIds.has(f.id)) continue
+    const { watchSeconds, estPayoutUsd } = estimate(f.id)
+    items.push({ id: f.id, title: f.title, status: f.is_active ? 'active' : 'inactive', rejectionReason: null, filmId: f.id, watchSeconds, estPayoutUsd })
+  }
 
   // Payout history (grouped by month) across all films this filmmaker owns.
-  const { data: ownedFilms } = await serviceClient.from('films').select('id').eq('filmmaker_id', user.id)
-  const ownedIds = (ownedFilms ?? []).map(f => f.id)
   let payoutHistory: { month: string; amountUsd: number; paid: boolean }[] = []
   if (ownedIds.length) {
     const { data: payouts } = await serviceClient

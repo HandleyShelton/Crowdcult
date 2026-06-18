@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function SignupPage() {
@@ -10,9 +10,25 @@ export default function SignupPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [checking, setChecking] = useState(true)
+  const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get('next') ?? '/subscribe'
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
+
+  // Already-signed-in users shouldn't see the join form: subscribers go to the
+  // films, logged-in non-subscribers go to checkout.
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) { setChecking(false); return }
+      const { data: profile } = await supabase
+        .from('users')
+        .select('is_subscribed')
+        .eq('id', user.id)
+        .single()
+      router.replace(profile?.is_subscribed ? '/browse' : '/subscribe')
+    })
+  }, [supabase, router])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -32,6 +48,14 @@ export default function SignupPage() {
     }
 
     window.location.href = next
+  }
+
+  if (checking) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <p className="font-mono text-xs text-muted uppercase tracking-widest animate-pulse">loading_</p>
+      </div>
+    )
   }
 
   return (

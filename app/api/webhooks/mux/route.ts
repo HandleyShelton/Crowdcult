@@ -1,25 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
-import { createHmac } from 'crypto'
+import { createHmac, timingSafeEqual } from 'crypto'
 
 export async function POST(req: NextRequest) {
   const body = await req.text()
 
-  // Verify Mux webhook signature
+  // Verify Mux webhook signature — FAIL CLOSED. A missing/invalid signature is
+  // rejected, so nobody can forge a video.asset.ready to hijack a film's video.
+  const secret = process.env.MUX_WEBHOOK_SECRET
+  if (!secret) {
+    console.error('MUX_WEBHOOK_SECRET not configured')
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
+  }
   const muxSig = req.headers.get('mux-signature')
-  if (muxSig && process.env.MUX_WEBHOOK_SECRET) {
-    const [tPart, v1Part] = muxSig.split(',')
-    const t = tPart?.split('=')[1]
-    const v1 = v1Part?.split('=')[1]
-    if (t && v1) {
-      const signedPayload = `${t}.${body}`
-      const expected = createHmac('sha256', process.env.MUX_WEBHOOK_SECRET)
-        .update(signedPayload)
-        .digest('hex')
-      if (expected !== v1) {
-        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
-      }
-    }
+  const t = muxSig?.split(',')[0]?.split('=')[1]
+  const v1 = muxSig?.split(',')[1]?.split('=')[1]
+  if (!t || !v1) {
+    return NextResponse.json({ error: 'Missing signature' }, { status: 401 })
+  }
+  const expected = createHmac('sha256', secret).update(`${t}.${body}`).digest('hex')
+  const expBuf = Buffer.from(expected)
+  const gotBuf = Buffer.from(v1)
+  if (expBuf.length !== gotBuf.length || !timingSafeEqual(expBuf, gotBuf)) {
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
   }
 
   const event = JSON.parse(body)

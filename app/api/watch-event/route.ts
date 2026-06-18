@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Legit clients report every ~30s. 30/min per user is generous but caps floods.
-  if (!rateLimit(`watch:${user.id}`, 30, 60 * 1000)) {
+  if (!(await rateLimit(`watch:${user.id}`, 30, 60 * 1000))) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   }
 

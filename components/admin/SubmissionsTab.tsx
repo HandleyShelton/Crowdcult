@@ -36,20 +36,30 @@ const STATUS_COLORS = {
 export default function SubmissionsTab() {
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [notes, setNotes] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState<string | null>(null)
 
-  async function load() {
-    setLoading(true)
-    const res = await fetch('/api/admin/submissions')
+  const PAGE = 50
+
+  async function load(reset = true) {
+    if (reset) setLoading(true)
+    else setLoadingMore(true)
+    const offset = reset ? 0 : submissions.length
+    const res = await fetch(`/api/admin/submissions?limit=${PAGE}&offset=${offset}`)
     const json = await res.json()
     const subs: Submission[] = json.submissions ?? []
-    setSubmissions(subs)
-    const initialNotes: Record<string, string> = {}
-    for (const s of subs) initialNotes[s.id] = s.rejection_reason ?? s.notes ?? ''
-    setNotes(initialNotes)
+    setSubmissions(prev => (reset ? subs : [...prev, ...subs]))
+    setHasMore(!!json.hasMore)
+    setNotes(prev => {
+      const next = { ...prev }
+      for (const s of subs) if (!(s.id in next)) next[s.id] = s.rejection_reason ?? s.notes ?? ''
+      return next
+    })
     setLoading(false)
+    setLoadingMore(false)
   }
 
   useEffect(() => { load() }, [])
@@ -143,6 +153,16 @@ export default function SubmissionsTab() {
             />
           ))}
         </div>
+      )}
+
+      {hasMore && (
+        <button
+          onClick={() => load(false)}
+          disabled={loadingMore}
+          className="w-full border border-line hover:border-accent text-muted hover:text-ink font-mono text-xs uppercase tracking-widest py-3 rounded-lg transition-colors disabled:opacity-50"
+        >
+          {loadingMore ? 'loading…' : 'load more'}
+        </button>
       )}
     </div>
   )

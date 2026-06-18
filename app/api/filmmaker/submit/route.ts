@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
 
-  if (!rateLimit(`fsubmit:${user.id}`, 10, 60 * 60 * 1000)) {
+  if (!(await rateLimit(`fsubmit:${user.id}`, 10, 60 * 60 * 1000))) {
     return NextResponse.json({ error: 'Too many submissions. Please try again later.' }, { status: 429 })
   }
 

@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
   }
 
-  if (!rateLimit(`checkout:${user.id}`, 8, 60 * 1000)) {
+  if (!(await rateLimit(`checkout:${user.id}`, 8, 60 * 1000))) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   }
 

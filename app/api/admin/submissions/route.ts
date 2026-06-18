@@ -15,14 +15,24 @@ export async function GET(req: NextRequest) {
   if (!(await requireAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const serviceClient = createServiceClient()
-  const statusFilter = req.nextUrl.searchParams.get('status')
+  const params = req.nextUrl.searchParams
+  const statusFilter = params.get('status')
+  const limit = Math.min(Math.max(Number(params.get('limit')) || 50, 1), 100)
+  const offset = Math.max(Number(params.get('offset')) || 0, 0)
 
-  let query = serviceClient.from('film_submissions').select('*').order('created_at', { ascending: false })
+  let query = serviceClient
+    .from('film_submissions')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit) // fetch one extra to detect more pages
   if (statusFilter) query = query.eq('status', statusFilter)
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ submissions: data })
+
+  const rows = data ?? []
+  const hasMore = rows.length > limit
+  return NextResponse.json({ submissions: hasMore ? rows.slice(0, limit) : rows, hasMore })
 }
 
 export async function PATCH(req: NextRequest) {

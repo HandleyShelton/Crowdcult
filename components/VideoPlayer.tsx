@@ -11,17 +11,23 @@ interface VideoPlayerProps {
 }
 
 export default function VideoPlayer({ playbackId, token, filmId, title }: VideoPlayerProps) {
-  // Track time via onTimeUpdate into a plain ref — avoids MuxPlayerElement typing issues
-  const currentTimeRef = useRef(0)
-  const lastReportedRef = useRef(0)
+  // Measure ACTUAL time watched, not playhead position. We accumulate the small
+  // forward deltas between timeupdate ticks during normal playback, and ignore
+  // big jumps (seeks/scrubs) — so scrubbing to the end can't inflate watch time.
+  const watchedRef = useRef(0)        // accumulated real seconds watched this session
+  const lastSentRef = useRef(0)       // how much we've already reported
+  const lastTimeRef = useRef<number | null>(null)
 
-  const reportWatchTime = useCallback(async (seconds: number) => {
-    if (seconds <= 0) return
+  const flush = useCallback(() => {
+    const delta = Math.floor(watchedRef.current - lastSentRef.current)
+    if (delta < 1) return
+    lastSentRef.current += delta
     try {
-      await fetch('/api/watch-event', {
+      fetch('/api/watch-event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filmId, watchedSeconds: Math.floor(seconds) }),
+        body: JSON.stringify({ filmId, deltaSeconds: delta }),
+        keepalive: true, // ensures the final report survives page unload
       })
     } catch {
       // best-effort tracking
@@ -29,20 +35,12 @@ export default function VideoPlayer({ playbackId, token, filmId, title }: VideoP
   }, [filmId])
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const current = currentTimeRef.current
-      if (current > lastReportedRef.current) {
-        lastReportedRef.current = current
-        reportWatchTime(current)
-      }
-    }, 30_000)
-
+    const interval = setInterval(flush, 30_000)
     return () => {
       clearInterval(interval)
-      // Final report on unmount
-      reportWatchTime(currentTimeRef.current)
+      flush()
     }
-  }, [reportWatchTime])
+  }, [flush])
 
   return (
     <div className="w-full rounded-lg overflow-hidden bg-black shadow-2xl">
@@ -50,11 +48,18 @@ export default function VideoPlayer({ playbackId, token, filmId, title }: VideoP
         playbackId={playbackId}
         tokens={token ? { playback: token } : undefined}
         metadata={{ video_title: title }}
-        accentColor="#e50914"
+        accentColor="#bb9af7"
         style={{ width: '100%', aspectRatio: '16/9' }}
         onTimeUpdate={(evt) => {
-          const target = evt.target as HTMLVideoElement
-          currentTimeRef.current = target.currentTime ?? 0
+          const t = (evt.target as HTMLVideoElement).currentTime ?? 0
+          const last = lastTimeRef.current
+          if (last !== null) {
+            const d = t - last
+            // Only count normal forward progress (~0.25s/tick). A delta >1.5s is
+            // a seek; a negative delta is a rewind — neither counts as watched.
+            if (d > 0 && d < 1.5) watchedRef.current += d
+          }
+          lastTimeRef.current = t
         }}
       />
     </div>

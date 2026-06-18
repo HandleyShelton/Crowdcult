@@ -162,6 +162,14 @@ export async function POST(req: NextRequest) {
     byMaker.set(f.filmmaker_id, e)
   }
 
+  // Idempotency guard: which films are already marked paid for this month, so a
+  // second "Run Monthly Payouts" can never double-transfer to the same filmmaker.
+  const { data: paidRows } = await serviceClient
+    .from('filmmaker_payouts')
+    .select('film_id, paid')
+    .eq('month', month)
+  const paidFilmIds = new Set((paidRows ?? []).filter(p => p.paid).map(p => p.film_id))
+
   const results: { filmmaker: string; amountUsd: number; status: string; error?: string }[] = []
   for (const [makerId, entry] of byMaker) {
     const { data: maker } = await serviceClient
@@ -172,6 +180,11 @@ export async function POST(req: NextRequest) {
     const name = maker?.full_name || maker?.email || 'unknown'
     const amountUsd = entry.totalCents / 100
 
+    // Already paid this month (by a prior run or a manual override) -> skip.
+    if (entry.films.some(f => paidFilmIds.has(f.id))) {
+      results.push({ filmmaker: name, amountUsd, status: 'already paid this month' })
+      continue
+    }
     if (entry.totalCents <= 0) { results.push({ filmmaker: name, amountUsd: 0, status: 'skipped (no earnings)' }); continue }
     if (!maker?.connect_payouts_enabled || !maker.stripe_connect_account_id) {
       results.push({ filmmaker: name, amountUsd, status: 'not connected — payout pending' })

@@ -39,14 +39,16 @@ CREATE TABLE public.films (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Watch events table
+-- Watch events table — one accumulating row per user+film PER MONTH, so watch
+-- time is attributed to the month it happened (drives correct monthly payouts).
 CREATE TABLE public.watch_events (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   film_id UUID NOT NULL REFERENCES public.films(id) ON DELETE CASCADE,
   watched_seconds INT DEFAULT 0,
+  month TEXT NOT NULL, -- "YYYY-MM"
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(user_id, film_id)
+  UNIQUE(user_id, film_id, month)
 );
 
 -- Filmmaker payouts table

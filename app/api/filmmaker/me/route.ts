@@ -45,9 +45,6 @@ export async function GET() {
 
   // Watch totals this month (across all films, for the pro-rata denominator).
   const month = currentMonth()
-  const [y, m] = month.split('-').map(Number)
-  const monthStart = new Date(y, m - 1, 1).toISOString()
-  const monthEnd = new Date(y, m, 1).toISOString()
 
   const watchByFilm = new Map<string, number>()
   let totalSeconds = 0
@@ -58,8 +55,7 @@ export async function GET() {
     const { data: watch } = await serviceClient
       .from('watch_events')
       .select('film_id, watched_seconds')
-      .gte('created_at', monthStart)
-      .lt('created_at', monthEnd)
+      .eq('month', month)
     for (const w of watch ?? []) {
       watchByFilm.set(w.film_id, (watchByFilm.get(w.film_id) ?? 0) + (w.watched_seconds ?? 0))
       totalSeconds += w.watched_seconds ?? 0

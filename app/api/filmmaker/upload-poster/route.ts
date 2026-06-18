@@ -17,6 +17,11 @@ export async function POST(req: NextRequest) {
   const file = formData.get('file') as File | null
   if (!file) return NextResponse.json({ error: 'No file' }, { status: 400 })
   if (file.size > 8 * 1024 * 1024) return NextResponse.json({ error: 'Poster must be under 8MB' }, { status: 400 })
+  // Only raster images — no SVG (can carry active content) or other types.
+  const allowed = ['image/png', 'image/jpeg', 'image/webp']
+  if (!allowed.includes(file.type)) {
+    return NextResponse.json({ error: 'Poster must be a PNG, JPEG, or WebP image' }, { status: 400 })
+  }
 
   const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '')
   const path = `posters/${user.id}-${Date.now()}.${ext}`

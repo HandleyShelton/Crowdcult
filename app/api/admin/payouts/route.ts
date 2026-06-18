@@ -18,15 +18,12 @@ export async function GET() {
   const serviceClient = createServiceClient()
   const month = currentMonth()
   const [y, m] = month.split('-').map(Number)
-  const monthStart = new Date(y, m - 1, 1).toISOString()
-  const monthEnd = new Date(y, m, 1).toISOString()
 
-  // Aggregate watch_events per film this month
+  // Aggregate watch_events for this month
   const { data: watchData } = await serviceClient
     .from('watch_events')
     .select('film_id, watched_seconds')
-    .gte('created_at', monthStart)
-    .lt('created_at', monthEnd)
+    .eq('month', month)
 
   const perFilm: Record<string, number> = {}
   let totalSeconds = 0
@@ -119,16 +116,13 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}))
   const month = typeof body.month === 'string' && body.month ? body.month : currentMonth()
   const [y, m] = month.split('-').map(Number)
-  const monthStart = new Date(y, m - 1, 1).toISOString()
-  const monthEnd = new Date(y, m, 1).toISOString()
 
   const serviceClient = createServiceClient()
 
   const { data: watchData } = await serviceClient
     .from('watch_events')
     .select('film_id, watched_seconds')
-    .gte('created_at', monthStart)
-    .lt('created_at', monthEnd)
+    .eq('month', month)
 
   const perFilm: Record<string, number> = {}
   let totalSeconds = 0

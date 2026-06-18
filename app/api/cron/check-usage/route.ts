@@ -16,15 +16,11 @@ export async function GET(req: NextRequest) {
 
   const serviceClient = createServiceClient()
   const month = currentMonth()
-  const [y, m] = month.split('-').map(Number)
-  const monthStart = new Date(y, m - 1, 1).toISOString()
-  const monthEnd = new Date(y, m, 1).toISOString()
 
   const { data: watchData } = await serviceClient
     .from('watch_events')
     .select('watched_seconds')
-    .gte('created_at', monthStart)
-    .lt('created_at', monthEnd)
+    .eq('month', month)
 
   const totalSeconds = watchData?.reduce((s, w) => s + (w.watched_seconds ?? 0), 0) ?? 0
   const deliveryMinutes = Math.ceil(totalSeconds / 60)

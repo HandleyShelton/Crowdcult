@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
+import { currentMonth } from '@/lib/utils'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -23,35 +24,42 @@ export async function POST(req: NextRequest) {
 
   const { data: film } = await supabase
     .from('films')
-    .select('id')
+    .select('id, runtime_minutes')
     .eq('id', filmId)
     .eq('status', 'ready')
     .eq('is_active', true)
     .single()
   if (!film) return NextResponse.json({ error: 'Film not found' }, { status: 404 })
 
-  // Clients report incremental actual-watched seconds. Reports fire every ~30s,
-  // so a legit delta is at most ~35s; cap at 120s to bound any client tampering.
+  // Clients report incremental actual-watched seconds every ~30s, so a legit
+  // delta is at most ~35s; cap at 120s to bound client tampering.
   const delta = Math.min(Math.floor(deltaSeconds), 120)
 
-  // Accumulate into the running total for this user+film.
+  // Per-(user, film, month) ceiling: at most ~2x the film's runtime, so one
+  // account can't pump a single film's monthly watch share. Fall back to 6h.
+  const monthlyCap = film.runtime_minutes ? film.runtime_minutes * 60 * 2 : 6 * 60 * 60
+  const month = currentMonth()
+
+  // Accumulate into this user's total for this film THIS MONTH.
   const { data: existing } = await supabase
     .from('watch_events')
     .select('id, watched_seconds')
     .eq('user_id', user.id)
     .eq('film_id', filmId)
+    .eq('month', month)
     .single()
 
   if (existing) {
-    await supabase
-      .from('watch_events')
-      .update({ watched_seconds: (existing.watched_seconds ?? 0) + delta })
-      .eq('id', existing.id)
+    const newTotal = Math.min((existing.watched_seconds ?? 0) + delta, monthlyCap)
+    if (newTotal > (existing.watched_seconds ?? 0)) {
+      await supabase.from('watch_events').update({ watched_seconds: newTotal }).eq('id', existing.id)
+    }
   } else {
     await supabase.from('watch_events').insert({
       user_id: user.id,
       film_id: filmId,
-      watched_seconds: delta,
+      month,
+      watched_seconds: Math.min(delta, monthlyCap),
     })
   }
 

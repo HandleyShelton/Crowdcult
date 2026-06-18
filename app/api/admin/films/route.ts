@@ -17,9 +17,6 @@ export async function GET() {
 
   const serviceClient = createServiceClient()
   const month = currentMonth()
-  const [y, m] = month.split('-').map(Number)
-  const monthStart = new Date(y, m - 1, 1).toISOString()
-  const monthEnd = new Date(y, m, 1).toISOString()
 
   const { data: films } = await serviceClient
     .from('films')
@@ -29,8 +26,7 @@ export async function GET() {
   const { data: watchData } = await serviceClient
     .from('watch_events')
     .select('film_id, watched_seconds')
-    .gte('created_at', monthStart)
-    .lt('created_at', monthEnd)
+    .eq('month', month)
 
   const watchMap: Record<string, number> = {}
   for (const w of watchData ?? []) watchMap[w.film_id] = (watchMap[w.film_id] ?? 0) + w.watched_seconds

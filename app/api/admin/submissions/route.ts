@@ -62,3 +62,17 @@ export async function PATCH(req: NextRequest) {
 
   return NextResponse.json({ ok: true })
 }
+
+export async function DELETE(req: NextRequest) {
+  if (!(await requireAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const id = req.nextUrl.searchParams.get('id')
+  if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+
+  // FK films.submission_id is ON DELETE SET NULL, so deleting a submission
+  // never removes an uploaded film — it just unlinks it.
+  const serviceClient = createServiceClient()
+  const { error } = await serviceClient.from('film_submissions').delete().eq('id', id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
+}

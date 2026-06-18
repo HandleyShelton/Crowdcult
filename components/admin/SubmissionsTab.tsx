@@ -73,6 +73,14 @@ export default function SubmissionsTab() {
     setSaving(null)
   }
 
+  async function deleteSubmission(id: string) {
+    if (!confirm('Delete this submission permanently? This cannot be undone. Any uploaded film stays — it just unlinks.')) return
+    setSaving(id)
+    await fetch(`/api/admin/submissions?id=${id}`, { method: 'DELETE' })
+    await load()
+    setSaving(null)
+  }
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -110,6 +118,7 @@ export default function SubmissionsTab() {
               onNotesChange={v => setNotes(n => ({ ...n, [s.id]: v }))}
               onApprove={() => updateStatus(s.id, 'approved')}
               onReject={() => updateStatus(s.id, 'rejected')}
+              onDelete={() => deleteSubmission(s.id)}
               saving={saving === s.id}
             />
           ))}
@@ -129,6 +138,7 @@ export default function SubmissionsTab() {
               onNotesChange={v => setNotes(n => ({ ...n, [s.id]: v }))}
               onApprove={() => updateStatus(s.id, 'approved')}
               onReject={() => updateStatus(s.id, 'rejected')}
+              onDelete={() => deleteSubmission(s.id)}
               saving={saving === s.id}
             />
           ))}
@@ -146,6 +156,7 @@ function SubmissionCard({
   onNotesChange,
   onApprove,
   onReject,
+  onDelete,
   saving,
 }: {
   sub: Submission
@@ -155,6 +166,7 @@ function SubmissionCard({
   onNotesChange: (v: string) => void
   onApprove: () => void
   onReject: () => void
+  onDelete: () => void
   saving: boolean
 }) {
   return (
@@ -290,6 +302,14 @@ function SubmissionCard({
               {saving ? 'Saving…' : sub.status === 'rejected' ? 'Rejected' : 'Reject'}
             </button>
           </div>
+
+          <button
+            onClick={onDelete}
+            disabled={saving}
+            className="w-full text-xs text-gray-500 hover:text-red-400 disabled:opacity-40 uppercase tracking-widest py-1 transition-colors"
+          >
+            Delete submission
+          </button>
         </div>
       )}
     </div>

@@ -66,10 +66,8 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   if (!(await requireAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const { id, isActive } = await req.json()
-  if (!id || typeof isActive !== 'boolean') {
-    return NextResponse.json({ error: 'Missing id or isActive' }, { status: 400 })
-  }
+  const { id, isActive, filmmakerId } = await req.json()
+  if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
 
   const serviceClient = createServiceClient()
   const { data: film } = await serviceClient
@@ -79,18 +77,27 @@ export async function PATCH(req: NextRequest) {
     .single()
   if (!film) return NextResponse.json({ error: 'Film not found' }, { status: 404 })
 
-  const wasActive = film.is_active
-  await serviceClient.from('films').update({ is_active: isActive }).eq('id', id)
+  const update: Record<string, unknown> = {}
+  if (filmmakerId !== undefined) update.filmmaker_id = filmmakerId || null
+  if (typeof isActive === 'boolean') update.is_active = isActive
+  if (Object.keys(update).length === 0) {
+    return NextResponse.json({ error: 'Nothing to update' }, { status: 400 })
+  }
 
-  // First activation -> "your film is live" email.
-  if (isActive && !wasActive && film.filmmaker_id) {
-    const { data: maker } = await serviceClient
-      .from('users').select('full_name, contact_email, email').eq('id', film.filmmaker_id).single()
-    const to = maker?.contact_email || maker?.email
-    if (to) {
-      const base = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/\/$/, '')
-      const email = filmActivatedEmail(maker?.full_name || 'there', film.title, `${base}/watch/${film.id}`)
-      await sendEmail({ to, ...email })
+  await serviceClient.from('films').update(update).eq('id', id)
+
+  // First activation -> "your film is live" email (to the effective filmmaker).
+  if (typeof isActive === 'boolean' && isActive && !film.is_active) {
+    const makerId = (filmmakerId !== undefined ? filmmakerId : film.filmmaker_id) || null
+    if (makerId) {
+      const { data: maker } = await serviceClient
+        .from('users').select('full_name, contact_email, email').eq('id', makerId).single()
+      const to = maker?.contact_email || maker?.email
+      if (to) {
+        const base = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/\/$/, '')
+        const email = filmActivatedEmail(maker?.full_name || 'there', film.title, `${base}/watch/${film.id}`)
+        await sendEmail({ to, ...email })
+      }
     }
   }
 

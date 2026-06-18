@@ -13,13 +13,17 @@ interface Film {
   is_active: boolean
   created_at: string
   total_watch_seconds?: number
+  filmmaker_id: string | null
   filmmaker_name: string | null
   filmmaker_email: string | null
   submission_status: string | null
 }
 
+interface Filmmaker { id: string; name: string; email: string }
+
 export default function FilmsTab() {
   const [films, setFilms] = useState<Film[]>([])
+  const [filmmakers, setFilmmakers] = useState<Filmmaker[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
 
@@ -31,7 +35,21 @@ export default function FilmsTab() {
     setLoading(false)
   }
 
-  useEffect(() => { loadFilms() }, [])
+  useEffect(() => {
+    loadFilms()
+    fetch('/api/admin/filmmakers').then(r => r.json()).then(d => setFilmmakers(d.filmmakers ?? []))
+  }, [])
+
+  async function assignFilmmaker(filmId: string, filmmakerId: string) {
+    setBusy(filmId)
+    await fetch('/api/admin/films', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: filmId, filmmakerId: filmmakerId || null }),
+    })
+    await loadFilms()
+    setBusy(null)
+  }
 
   async function toggleActive(film: Film) {
     setBusy(film.id)
@@ -95,13 +113,19 @@ export default function FilmsTab() {
                     <div className="text-xs text-muted">{film.director} · {film.year}</div>
                   </td>
                   <td className="py-3 pr-4">
-                    {film.filmmaker_name ? (
-                      <div>
-                        <div className="text-ink text-xs">{film.filmmaker_name}</div>
-                        <div className="text-muted text-[11px]">{film.filmmaker_email}</div>
-                      </div>
-                    ) : (
-                      <span className="text-muted text-xs">—</span>
+                    <select
+                      value={film.filmmaker_id ?? ''}
+                      onChange={e => assignFilmmaker(film.id, e.target.value)}
+                      disabled={busy === film.id}
+                      className="bg-background border border-line rounded-md px-2 py-1 text-xs text-ink focus:outline-none focus:border-accent max-w-[180px]"
+                    >
+                      <option value="">— unassigned —</option>
+                      {filmmakers.map(f => (
+                        <option key={f.id} value={f.id}>{f.name}</option>
+                      ))}
+                    </select>
+                    {film.filmmaker_email && (
+                      <div className="text-muted text-[11px] mt-1">{film.filmmaker_email}</div>
                     )}
                   </td>
                   <td className="py-3 pr-4">

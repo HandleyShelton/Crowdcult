@@ -46,9 +46,13 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="border-t border-line mt-8 pt-6 text-xs font-mono text-muted/70 flex flex-col sm:flex-row justify-between gap-2 lowercase tracking-wide">
+          <div className="border-t border-line mt-8 pt-6 text-xs font-mono text-muted/70 flex flex-col sm:flex-row justify-between gap-3 lowercase tracking-wide">
             <span>© {new Date().getFullYear()} crowdcult. all rights reserved.</span>
-            <span className="text-accent/60">built for independent media<span className="cursor" aria-hidden /></span>
+            <div className="flex items-center gap-4">
+              <Link href="/terms" className="hover:text-ink transition-colors">terms</Link>
+              <Link href="/privacy" className="hover:text-ink transition-colors">privacy</Link>
+              <span className="text-accent/60">built for independent media<span className="cursor" aria-hidden /></span>
+            </div>
           </div>
         </div>
       </div>

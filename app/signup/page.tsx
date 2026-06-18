@@ -94,7 +94,9 @@ export default function SignupPage() {
           </form>
 
           <p className="text-center font-mono text-[10px] text-gray-700 mt-4 uppercase tracking-widest leading-relaxed">
-            BY SIGNING UP YOU AGREE TO OUR TERMS. CANCEL ANYTIME.
+            BY SIGNING UP YOU AGREE TO OUR{' '}
+            <Link href="/terms" className="text-accent hover:text-ink">TERMS</Link> AND{' '}
+            <Link href="/privacy" className="text-accent hover:text-ink">PRIVACY POLICY</Link>.
           </p>
 
           <p className="text-center font-mono text-xs text-gray-600 mt-4 uppercase tracking-widest">
